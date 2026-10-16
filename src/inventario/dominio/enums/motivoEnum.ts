@@ -1,0 +1,5 @@
+export enum Motivo{
+  ENTRADA= "ENTRADA",
+  MERMA= "MERMA",
+  CORRECCION = "CORRECCION"
+}

@@ -1,0 +1,7 @@
+export enum EstadoOrden{
+  PENDIENTE= "PENDIENTE",
+  PROCESANDO= "PROCESANDO",
+  ENVIADO= "ENVIADO",
+  ENTREGADO= "ENTREGADO"
+
+}
