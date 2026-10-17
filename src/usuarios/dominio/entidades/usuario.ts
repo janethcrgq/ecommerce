@@ -1,4 +1,5 @@
 import { RolUsuario } from "../enums/rolUsuarioEnum";
+import { Direccion } from "./direccion";
 
 export interface Usuario{
   id: string,
@@ -6,5 +7,6 @@ export interface Usuario{
   correo: string,
   contraseniaHash: string,
   rol: RolUsuario,
-  telefono: string
+  telefono: string,
+  direcciones: Direccion[];
 }
