@@ -1,6 +1,7 @@
 import { ErrorDominio } from '../../../compartido/errorDominio';
 import { EstadoOrden } from '../enums/estadoOrdenEnum';
 
+
 export class OrdenNoEncontradaError extends ErrorDominio {
   constructor() {
     super(
@@ -8,6 +9,7 @@ export class OrdenNoEncontradaError extends ErrorDominio {
     );
   }
 }
+
 
 export class TransicionEstadoInvalidaError extends ErrorDominio {
   constructor(
@@ -20,6 +22,16 @@ export class TransicionEstadoInvalidaError extends ErrorDominio {
   }
 }
 
+
+export class PagoNoEncontradoError extends ErrorDominio {
+  constructor() {
+    super(
+      'La orden no tiene un pago registrado',
+    );
+  }
+}
+
+
 export class PagoPendienteError extends ErrorDominio {
   constructor() {
     super(
@@ -28,6 +40,7 @@ export class PagoPendienteError extends ErrorDominio {
   }
 }
 
+
 export class EnvioNoEncontradoError extends ErrorDominio {
   constructor() {
     super(
@@ -35,6 +48,7 @@ export class EnvioNoEncontradoError extends ErrorDominio {
     );
   }
 }
+
 
 export class EnvioYaRegistradoError extends ErrorDominio {
   constructor() {
