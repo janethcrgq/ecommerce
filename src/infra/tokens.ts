@@ -1,0 +1,5 @@
+export const PRODUCTO_REPOSITORY =
+  Symbol('PRODUCTO_REPOSITORY');
+
+export const USUARIO_REPOSITORY =
+  Symbol('USUARIO_REPOSITORY');
