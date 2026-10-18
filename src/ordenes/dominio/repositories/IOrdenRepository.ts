@@ -1,17 +1,33 @@
-import { Orden } from "../entidades/orden";
-import { EstadoOrden } from "../enums/estadoOrdenEnum";
+import { DetalleOrden } from '../entidades/detalleOrden';
+import { Orden } from '../entidades/orden';
+import { EstadoOrden } from '../enums/estadoOrdenEnum';
 
-export interface FiltrosOrden{
+export interface FiltrosOrden {
   estado?: EstadoOrden;
   fechaDesde?: Date;
   fechaHasta?: Date;
-  usuarioId?: string;  
+  usuarioId?: number;
 }
 
-export interface IOrdenRepository{
-  guardar(orden: Orden): Promise<Orden>;
-  obtenerPorId(id: string): Promise<Orden | null>;
-  listar(filtros?: FiltrosOrden): Promise<Orden[]>;
-  actualizarEstado(id: string, estado: EstadoOrden): Promise<void>;
-  
+export interface IOrdenRepository {
+  guardar(
+    orden: Orden,
+    detalles: DetalleOrden[],
+  ): Promise<Orden>;
+
+  obtenerPorId(
+    id: number,
+  ): Promise<Orden | null>;
+
+  listar(
+    filtros?: FiltrosOrden,
+  ): Promise<Orden[]>;
+
+  obtenerDetalles(
+    ordenId: number,
+  ): Promise<DetalleOrden[]>;
+
+  actualizar(
+    orden: Orden,
+  ): Promise<Orden | null>;
 }

@@ -1,7 +1,4 @@
-import { ItemCarrito } from "./itemCarrito";
-
-export interface Carrito{
-  id: string,
-  usuarioId: string,
-  listaItems: ItemCarrito[];
+export interface Carrito {
+  id: number;
+  usuarioId: number;
 }

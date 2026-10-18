@@ -1,9 +1,21 @@
-import { Categoria } from "../entidades/categoria";
+import { Categoria } from '../entidades/categoria';
 
-export interface ICategoriaRepository{
-  guardar(categoria: Categoria): Promise<Categoria>;
-  obtenerPorId(id: string): Promise<Categoria | null>;
+export interface ICategoriaRepository {
+  guardar(
+    categoria: Categoria,
+  ): Promise<Categoria>;
+
+  obtenerPorId(
+    id: number,
+  ): Promise<Categoria | null>;
+
   listar(): Promise<Categoria[]>;
-  eliminar(id: string): Promise<void>;
 
+  actualizar(
+    categoria: Categoria,
+  ): Promise<Categoria | null>;
+
+  eliminar(
+    id: number,
+  ): Promise<void>;
 }

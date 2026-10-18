@@ -1,10 +1,10 @@
-export interface Direccion{
-  id: string,
-  codigoPostal: string,
-  numeroCasa: string,
-  calle: string,
-  colonia: string,
-  ciudad: string,
-  estado: string,
-  usuarioId: string
+export interface Direccion {
+  id: number;
+  usuarioId: number;
+  codigoPostal: string;
+  numeroCasa: string;
+  calle: string;
+  colonia: string;
+  ciudad: string;
+  estado: string;
 }

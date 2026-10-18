@@ -1,12 +1,9 @@
-export enum Color{
-  NEGRO= 'NEGRO',
-  BLANCO= 'BLANCO',
-  ROSA= 'ROSA',
-  AMARILLO= 'AMARILLO',
-  ROJO= 'ROJO',
-  VERDE= 'VERDE',
-  NARANJA= 'NARANJA',
-  GRIS= 'GRIS',
-  BEIGE= 'BEIGE',
-  AZUL= 'AZUL'
+export enum Color {
+  NEGRO = 'NEGRO',
+  BLANCO = 'BLANCO',
+  GRIS = 'GRIS',
+  AZUL = 'AZUL',
+  ROJO = 'ROJO',
+  VERDE = 'VERDE',
+  BEIGE = 'BEIGE',
 }

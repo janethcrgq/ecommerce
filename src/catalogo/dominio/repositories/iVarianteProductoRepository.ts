@@ -1,14 +1,33 @@
-import { VarianteProducto } from "../entidades/varianteProducto";
+import { VarianteProducto } from '../entidades/varianteProducto';
 
-export interface ItemDescuento{
-  varianteId: string,
+export interface ItemDescuento {
+  varianteId: number;
   cantidad: number;
 }
 
-export interface IVarianteProductoRepository{
-  guardar(variante: VarianteProducto): Promise<VarianteProducto>;
-  obtenerPorId(id: string): Promise<VarianteProducto | null>;
-  listarPorProducto(productoId: string): Promise<VarianteProducto[]>;
-  actualizarStock(varianteId: string, nuevoStock: number): Promise<void>;
-  descontarStock(items: ItemDescuento[]): Promise<void>;
+export interface IVarianteProductoRepository {
+  guardar(
+    variante: VarianteProducto,
+  ): Promise<VarianteProducto>;
+
+  obtenerPorId(
+    id: number,
+  ): Promise<VarianteProducto | null>;
+
+  listarPorProducto(
+    productoId: number,
+  ): Promise<VarianteProducto[]>;
+
+  actualizar(
+    variante: VarianteProducto,
+  ): Promise<VarianteProducto | null>;
+
+  actualizarStock(
+    varianteId: number,
+    nuevoStock: number,
+  ): Promise<void>;
+
+  descontarStock(
+    items: ItemDescuento[],
+  ): Promise<void>;
 }

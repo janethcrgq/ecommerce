@@ -1,14 +1,45 @@
-import { ErrorDominio } from "../../../compartido/errorDominio";
-import { EstadoOrden } from "../enums/estadoOrdenEnum";
+import { ErrorDominio } from '../../../compartido/errorDominio';
+import { EstadoOrden } from '../enums/estadoOrdenEnum';
 
-export class CarritoVacioError extends ErrorDominio {
+export class OrdenNoEncontradaError extends ErrorDominio {
   constructor() {
-    super("No se puede confirmar una compra con el carrito vacío");
+    super(
+      'La orden no existe',
+    );
   }
 }
 
 export class TransicionEstadoInvalidaError extends ErrorDominio {
-  constructor(actual: EstadoOrden, nuevo: EstadoOrden) {
-    super(`No se puede cambiar una orden de ${actual} a ${nuevo}`);
+  constructor(
+    actual: EstadoOrden,
+    nuevo: EstadoOrden,
+  ) {
+    super(
+      `No se puede cambiar una orden de ${actual} a ${nuevo}`,
+    );
+  }
+}
+
+export class PagoPendienteError extends ErrorDominio {
+  constructor() {
+    super(
+      'La orden no puede procesarse mientras el pago no esté confirmado',
+    );
+  }
+}
+
+export class EnvioNoEncontradoError extends ErrorDominio {
+  constructor() {
+    super(
+      'La orden todavía no tiene un envío registrado',
+    );
+  }
+}
+
+export class EnvioYaRegistradoError extends ErrorDominio {
+  constructor() {
+    super(
+      'La orden ya tiene un envío registrado',
+    );
   }
 }

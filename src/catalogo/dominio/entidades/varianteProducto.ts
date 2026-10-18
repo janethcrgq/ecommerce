@@ -1,10 +1,11 @@
-import { Color } from "../enums/colorEnum";
-import { Talla } from "../enums/tallaEnum";
+import { Color } from '../enums/colorEnum';
+import { Talla } from '../enums/tallaEnum';
 
-export interface VarianteProducto{
-  id: string,
-  talla: Talla,
-  color: Color,
-  stock: number,
-  productoId: string;
+export interface VarianteProducto {
+  id: number;
+  productoId: number;
+  talla: Talla;
+  color: Color;
+  stock: number;
+  stockMinimo: number;
 }
