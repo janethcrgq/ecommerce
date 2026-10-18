@@ -1,6 +1,6 @@
 export enum Talla{
   XXXS= 'XXXS',
-  XXS= 'XS',
+  XXS= 'XXS',
   XS= 'XS',
   S= 'S',
   M= 'M',

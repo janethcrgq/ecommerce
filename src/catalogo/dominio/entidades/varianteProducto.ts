@@ -5,5 +5,6 @@ export interface VarianteProducto{
   id: string,
   talla: Talla,
   color: Color,
-  stock: number;
+  stock: number,
+  productoId: string;
 }

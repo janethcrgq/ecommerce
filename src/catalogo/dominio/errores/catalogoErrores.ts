@@ -12,3 +12,16 @@ export class StockInsuficienteError extends ErrorDominio{
   }
 }
 
+export class ProductoNoEncontradoError extends ErrorDominio{
+  constructor(productoId: string){
+    super(`No existe el producto ${productoId}`);
+  }
+}
+
+export class VarianteNoEncontradaError extends ErrorDominio{
+  constructor(varianteId: string){
+    super(`No existe la variante de producto ${varianteId}`);
+  }
+}
+
+
