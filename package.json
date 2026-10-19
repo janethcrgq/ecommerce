@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "nest start --watch",
-  "build": "nest build",
-  "start": "node dist/main.js",
-  "test:dominio": "tsx src/pruebas-dominio.ts",
-  "typecheck": "tsc --noEmit"
-},
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "test:dominio": "tsx src/pruebas-dominio.ts",
+    "typecheck": "tsc --noEmit"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LuisRHigareda/TiendaEnLinea.git"
@@ -24,7 +24,9 @@
   "homepage": "https://github.com/LuisRHigareda/TiendaEnLinea#readme",
   "devDependencies": {
     "@nestjs/cli": "^12.0.8",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.5",
+    "dotenv": "^18.0.8",
+    "prisma": "^7.10.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3"
@@ -34,6 +36,9 @@
     "@nestjs/core": "^12.1.3",
     "@nestjs/platform-express": "^12.1.3",
     "@nestjs/swagger": "^12.0.2",
+    "@prisma/adapter-mariadb": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "reflect-metadata": "^0.2.2",

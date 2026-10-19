@@ -1,0 +1,236 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum RolUsuario {
+  CLIENTE
+  ADMINISTRADOR
+}
+
+enum EstadoOrden {
+  PENDIENTE
+  PROCESANDO
+  ENVIADO
+  ENTREGADO
+}
+
+enum Talla {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+}
+
+enum Color {
+  NEGRO
+  BLANCO
+  GRIS
+  AZUL
+  ROJO
+  VERDE
+  BEIGE
+}
+
+enum MetodoPago {
+  TARJETA
+  EFECTIVO
+  TRANSFERENCIA
+}
+
+enum EstadoPago {
+  PENDIENTE
+  PAGADO
+  FALLIDO
+}
+
+enum Motivo {
+  ENTRADA
+  MERMA
+  CORRECCION
+}
+
+model Usuario {
+  id              Int        @id @default(autoincrement())
+  nombre          String
+  correo          String     @unique
+  contraseniaHash String
+  rol             RolUsuario @default(CLIENTE)
+  telefono        String
+
+  direcciones Direccion[]
+  carrito     Carrito?
+  ordenes     Orden[]
+  ajustes     AjusteInventario[]
+
+  @@map("usuarios")
+}
+
+model Direccion {
+  id           Int    @id @default(autoincrement())
+  usuarioId    Int
+  codigoPostal String
+  numeroCasa   String
+  calle        String
+  colonia      String
+  ciudad       String
+  estado       String
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  ordenes Orden[]
+
+  @@index([usuarioId])
+  @@map("direcciones")
+}
+
+model Categoria {
+  id          Int    @id @default(autoincrement())
+  nombre      String @unique
+  descripcion String
+
+  productos Producto[]
+
+  @@map("categorias")
+}
+
+model Producto {
+  id          Int     @id @default(autoincrement())
+  categoriaId Int
+  nombre      String
+  descripcion String
+  precio      Decimal @db.Decimal(10, 2)
+  activo      Boolean @default(true)
+  imagen      String
+
+  categoria Categoria          @relation(fields: [categoriaId], references: [id])
+  variantes VarianteProducto[]
+
+  @@index([categoriaId])
+  @@map("productos")
+}
+
+model VarianteProducto {
+  id          Int   @id @default(autoincrement())
+  productoId  Int
+  talla       Talla
+  color       Color
+  stock       Int   @default(0)
+  stockMinimo Int   @default(0)
+
+  producto Producto           @relation(fields: [productoId], references: [id])
+  items    ItemCarrito[]
+  detalles DetalleOrden[]
+  ajustes  AjusteInventario[]
+
+  @@unique([productoId, talla, color])
+  @@index([productoId])
+  @@map("variantes_producto")
+}
+
+model Carrito {
+  id        Int @id @default(autoincrement())
+  usuarioId Int @unique
+
+  usuario Usuario       @relation(fields: [usuarioId], references: [id])
+  items   ItemCarrito[]
+
+  @@map("carritos")
+}
+
+model ItemCarrito {
+  id         Int @id @default(autoincrement())
+  carritoId  Int
+  varianteId Int
+  cantidad   Int
+
+  carrito  Carrito          @relation(fields: [carritoId], references: [id])
+  variante VarianteProducto @relation(fields: [varianteId], references: [id])
+
+  @@unique([carritoId, varianteId])
+  @@index([varianteId])
+  @@map("items_carrito")
+}
+
+model Orden {
+  id          Int         @id @default(autoincrement())
+  usuarioId   Int
+  direccionId Int
+  fecha       DateTime    @default(now())
+  total       Decimal     @db.Decimal(10, 2)
+  estado      EstadoOrden @default(PENDIENTE)
+
+  usuario   Usuario        @relation(fields: [usuarioId], references: [id])
+  direccion Direccion      @relation(fields: [direccionId], references: [id])
+  detalles  DetalleOrden[]
+  pago      Pago?
+  envio     Envio?
+
+  @@index([usuarioId])
+  @@index([direccionId])
+  @@index([estado])
+  @@map("ordenes")
+}
+
+model DetalleOrden {
+  id             Int     @id @default(autoincrement())
+  ordenId        Int
+  varianteId     Int
+  cantidad       Int
+  precioUnitario Decimal @db.Decimal(10, 2)
+  subtotal       Decimal @db.Decimal(10, 2)
+
+  orden    Orden            @relation(fields: [ordenId], references: [id])
+  variante VarianteProducto @relation(fields: [varianteId], references: [id])
+
+  @@index([ordenId])
+  @@index([varianteId])
+  @@map("detalles_orden")
+}
+
+model Pago {
+  id      Int        @id @default(autoincrement())
+  ordenId Int        @unique
+  metodo  MetodoPago
+  estado  EstadoPago @default(PENDIENTE)
+  monto   Decimal    @db.Decimal(10, 2)
+
+  orden Orden @relation(fields: [ordenId], references: [id])
+
+  @@map("pagos")
+}
+
+model Envio {
+  id               Int       @id @default(autoincrement())
+  ordenId          Int       @unique
+  nombrePaqueteria String
+  numeroGuia       String
+  fechaEnvio       DateTime
+  fechaEntrega     DateTime?
+
+  orden Orden @relation(fields: [ordenId], references: [id])
+
+  @@map("envios")
+}
+
+model AjusteInventario {
+  id         Int      @id @default(autoincrement())
+  varianteId Int
+  usuarioId  Int
+  fecha      DateTime @default(now())
+  cantidad   Int
+  motivo     Motivo
+
+  variante VarianteProducto @relation(fields: [varianteId], references: [id])
+  usuario  Usuario          @relation(fields: [usuarioId], references: [id])
+
+  @@index([varianteId])
+  @@index([usuarioId])
+  @@map("ajustes_inventario")
+}
