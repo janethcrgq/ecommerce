@@ -55,9 +55,12 @@ async function bootstrap() {
     );
 
     // Origen que posteriormente utilizará el frontend.
+    // se lee del .env para no dejarlo escrito dentro del código.
+    // solo ese origen puede usar la API desde un navegador.
     app.enableCors({
         origin:
-            'http://localhost:5173',
+            process.env['FRONTEND_ORIGIN']
+            ?? 'http://localhost:5173',
     });
 
 
@@ -88,7 +91,8 @@ async function bootstrap() {
     );
 
 
-    const puerto = 3000;
+    const puerto =
+        Number(process.env['PORT'] ?? 3000);
 
     await app.listen(
         puerto,

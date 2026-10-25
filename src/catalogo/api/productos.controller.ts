@@ -1,8 +1,12 @@
 import {
+    Body,
     Controller,
     Get,
     Param,
     ParseIntPipe,
+    Patch,
+    Post,
+    Query,
 } from '@nestjs/common';
 
 import {
@@ -10,7 +14,22 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
+import { Proteger } from '../../auth/proteger.decorator';
+
+import { UsuarioActual } from '../../auth/usuarioActual.decorator';
+
+import { UsuarioAutenticado } from '../../auth/usuarioAutenticado';
+
+import { RolUsuario } from '../../usuarios/dominio/enums/rolUsuarioEnum';
+
 import { CatalogoService } from '../dominio/services/catalogoService';
+
+import {
+    ActualizarProductoDto,
+    CrearProductoDto,
+    CrearVarianteDto,
+    FiltrosProductoDto,
+} from './dto/productos.dto';
 
 
 @ApiTags('productos')
@@ -25,18 +44,20 @@ export class ProductosController {
 
     @Get()
     @ApiOperation({
-        summary: 'Consultar productos disponibles',
+        summary: 'Consultar productos disponibles (activos y con stock)',
     })
-    async listar() {
+    async listar(
+        @Query() filtros: FiltrosProductoDto,
+    ) {
 
         return this.catalogoService
-            .listarDisponibles();
+            .listarDisponibles(filtros);
     }
 
 
     @Get(':id')
     @ApiOperation({
-        summary: 'Consultar un producto por id',
+        summary: 'Consultar un producto con sus tallas, colores y stock',
     })
     async obtener(
         @Param(
@@ -48,5 +69,86 @@ export class ProductosController {
 
         return this.catalogoService
             .obtenerDetalle(id);
+    }
+
+
+    @Post()
+    @Proteger(RolUsuario.ADMINISTRADOR)
+    @ApiOperation({
+        summary: 'Registrar un producto (administrador)',
+    })
+    async crear(
+        @UsuarioActual() usuario: UsuarioAutenticado,
+        @Body() dto: CrearProductoDto,
+    ) {
+
+        return this.catalogoService
+            .registrarProducto(
+                usuario.id,
+                {
+                    id: 0,
+                    categoriaId: dto.categoriaId,
+                    nombre: dto.nombre,
+                    descripcion: dto.descripcion,
+                    precio: dto.precio,
+                    // si no dicen nada, el producto nace activo.
+                    activo: dto.activo ?? true,
+                    imagen: dto.imagen,
+                },
+            );
+    }
+
+
+    @Patch(':id')
+    @Proteger(RolUsuario.ADMINISTRADOR)
+    @ApiOperation({
+        summary: 'Modificar un producto o activarlo/desactivarlo (administrador)',
+    })
+    async modificar(
+        @UsuarioActual() usuario: UsuarioAutenticado,
+        @Param(
+            'id',
+            ParseIntPipe,
+        )
+        id: number,
+        @Body() dto: ActualizarProductoDto,
+    ) {
+
+        return this.catalogoService
+            .modificarProducto(
+                usuario.id,
+                id,
+                dto,
+            );
+    }
+
+
+    @Post(':id/variantes')
+    @Proteger(RolUsuario.ADMINISTRADOR)
+    @ApiOperation({
+        summary: 'Registrar una variante (talla y color) de un producto (administrador)',
+    })
+    async crearVariante(
+        @UsuarioActual() usuario: UsuarioAutenticado,
+        @Param(
+            'id',
+            ParseIntPipe,
+        )
+        id: number,
+        @Body() dto: CrearVarianteDto,
+    ) {
+
+        return this.catalogoService
+            .registrarVariante(
+                usuario.id,
+                {
+                    id: 0,
+                    productoId: id,
+                    talla: dto.talla,
+                    color: dto.color,
+                    stock: dto.stock,
+                    stockMinimo: dto.stockMinimo ?? 0,
+                },
+            );
     }
 }
