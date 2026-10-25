@@ -64,6 +64,23 @@ export class CategoriaMemoriaRepository
     }
 
 
+    async obtenerPorNombre(
+        nombre: string,
+    ): Promise<Categoria | null> {
+
+        const categoria =
+            this.categorias.find(
+                (actual) =>
+                    actual.nombre.toLowerCase() ===
+                    nombre.toLowerCase(),
+            );
+
+        return categoria
+            ? { ...categoria }
+            : null;
+    }
+
+
     async listar():
         Promise<Categoria[]> {
 

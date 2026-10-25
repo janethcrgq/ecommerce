@@ -1,10 +1,18 @@
 import { DetalleOrden } from '../../ordenes/dominio/entidades/detalleOrden';
 import { Orden } from '../../ordenes/dominio/entidades/orden';
+import { Pago } from '../../ordenes/dominio/entidades/pago';
 
 import {
+    DatosCompra,
     FiltrosOrden,
     IOrdenRepository,
 } from '../../ordenes/dominio/repositories/IOrdenRepository';
+
+import { IPagoRepository } from '../../ordenes/dominio/repositories/iPagoRepository';
+
+import { ICarritoRepository } from '../../carrito/dominio/repositories/iCarritoRepository';
+
+import { IVarianteProductoRepository } from '../../catalogo/dominio/repositories/iVarianteProductoRepository';
 
 
 export class OrdenMemoriaRepository
@@ -18,6 +26,68 @@ export class OrdenMemoriaRepository
     private siguienteOrdenId = 1;
 
     private siguienteDetalleId = 1;
+
+
+    // para confirmar una compra en memoria necesita tocar el stock,
+    // el pago y el carrito, por eso recibe esos repositorios.
+    constructor(
+        private readonly varianteRepo:
+            IVarianteProductoRepository,
+
+        private readonly pagoRepo:
+            IPagoRepository,
+
+        private readonly carritoRepo:
+            ICarritoRepository,
+    ) { }
+
+
+    async confirmarCompra(
+        datos: DatosCompra,
+    ): Promise<{
+        orden: Orden;
+        pago: Pago;
+    }> {
+
+        // primero se descuenta el stock de todo junto.
+        // si algun producto ya no alcanza, lanza error y no se guarda nada.
+        await this.varianteRepo.descontarStock(
+            datos.detalles.map(
+                (detalle) => ({
+                    varianteId:
+                        detalle.varianteId,
+                    cantidad:
+                        detalle.cantidad,
+                }),
+            ),
+        );
+
+
+        const orden =
+            await this.guardar(
+                datos.orden,
+                datos.detalles,
+            );
+
+
+        const pago =
+            await this.pagoRepo.guardar({
+                ...datos.pago,
+                ordenId:
+                    orden.id,
+            });
+
+
+        await this.carritoRepo.vaciar(
+            datos.carritoId,
+        );
+
+
+        return {
+            orden,
+            pago,
+        };
+    }
 
 
     async guardar(

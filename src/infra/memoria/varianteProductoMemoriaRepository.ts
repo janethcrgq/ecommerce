@@ -90,6 +90,36 @@ implements IVarianteProductoRepository {
   }
 
 
+  async listar(): Promise<VarianteProducto[]> {
+
+    return this.variantes.map(
+      (variante) => ({
+        ...variante,
+      }),
+    );
+  }
+
+
+  async obtenerPorProductoTallaColor(
+    productoId: number,
+    talla: Talla,
+    color: Color,
+  ): Promise<VarianteProducto | null> {
+
+    const variante =
+      this.variantes.find(
+        (actual) =>
+          actual.productoId === productoId &&
+          actual.talla === talla &&
+          actual.color === color,
+      );
+
+    return variante
+      ? { ...variante }
+      : null;
+  }
+
+
   async listarPorProducto(
     productoId: number,
   ): Promise<VarianteProducto[]> {

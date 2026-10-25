@@ -10,14 +10,19 @@ import { MetodoPago } from '../enums/metodoPagoEnum';
 import {
     EnvioNoEncontradoError,
     EnvioYaRegistradoError,
+    OrdenAjenaError,
     OrdenNoEncontradaError,
     PagoNoEncontradoError,
     PagoPendienteError,
+    PagoYaRealizadoError,
     TransicionEstadoInvalidaError,
 } from '../errores/ordenesErrores';
 
 import { IEnvioRepository } from '../repositories/iEnvioRepository';
-import { IOrdenRepository } from '../repositories/IOrdenRepository';
+import {
+    FiltrosOrden,
+    IOrdenRepository,
+} from '../repositories/IOrdenRepository';
 import { IPagoRepository } from '../repositories/iPagoRepository';
 
 import {
@@ -41,12 +46,22 @@ import { RolUsuario } from '../../../usuarios/dominio/enums/rolUsuarioEnum';
 import {
     DireccionNoEncontradaError,
     DireccionNoPerteneceAlUsuarioError,
-    PermisoDenegadoError,
     UsuarioNoEncontradoError,
 } from '../../../usuarios/dominio/errores/usuarioErrores';
 
+import { validarAdministrador } from '../../../usuarios/dominio/reglas/validarAdministrador';
+
 import { IDireccionRepository } from '../../../usuarios/dominio/repositories/iDireccionRepository';
 import { IUsuarioRepository } from '../../../usuarios/dominio/repositories/iUsuarioRepository';
+
+
+// una orden completa: sus productos, su pago y su envio (si ya tiene).
+export interface OrdenDetalle {
+    orden: Orden;
+    detalles: DetalleOrden[];
+    pago: Pago | null;
+    envio: Envio | null;
+}
 
 
 export class OrdenService {
@@ -108,6 +123,7 @@ export class OrdenService {
         }
 
 
+        // la direccion tiene que ser del mismo usuario que compra.
         if (
             direccion.usuarioId !== usuarioId
         ) {
@@ -138,15 +154,11 @@ export class OrdenService {
         const detalles:
             DetalleOrden[] = [];
 
-        const descuentoStock: {
-            varianteId: number;
-            cantidad: number;
-        }[] = [];
-
         let total = 0;
 
 
         // Se vuelve a comprobar cada producto antes de confirmar.
+        // porque desde que se agrego al carrito pudo cambiar el stock.
         for (const item of items) {
 
             const variante =
@@ -189,6 +201,8 @@ export class OrdenService {
             }
 
 
+            // el precio se guarda en la orden tal como estaba hoy,
+            // aunque despues el producto cambie de precio.
             const subtotal =
                 producto.precio *
                 item.cantidad;
@@ -208,104 +222,158 @@ export class OrdenService {
                     producto.precio,
                 subtotal,
             });
-
-
-            descuentoStock.push({
-                varianteId:
-                    variante.id,
-                cantidad:
-                    item.cantidad,
-            });
         }
 
 
-        /*
-         * En memoria se ejecuta después de validar todos los items.
-         * Cuando lleguemos a MySQL esta operación formará parte
-         * de una transacción junto con la creación de la orden.
-         */
-        await this.varianteRepo.descontarStock(
-            descuentoStock,
-        );
-
-
-        // Todas las órdenes comienzan como pendientes.
-        const orden =
-            await this.ordenRepo.guardar(
-                {
-                    id: 0,
-                    usuarioId,
-                    direccionId,
-                    fecha: new Date(),
-                    total,
-                    estado:
-                        EstadoOrden.PENDIENTE,
-                },
-                detalles,
-            );
-
-
-        // Toda orden genera un registro de pago.
-        const pago =
-            await this.pagoRepo.guardar({
+        // el repositorio descuenta el stock, guarda la orden con su pago
+        // y vacia el carrito todo junto. si alguien mas compro la ultima
+        // unidad, aqui es donde se rechaza.
+        return this.ordenRepo.confirmarCompra({
+            orden: {
                 id: 0,
-                ordenId:
-                    orden.id,
+                usuarioId,
+                direccionId,
+                fecha: new Date(),
+                total,
+                // Todas las órdenes comienzan como pendientes.
+                estado:
+                    EstadoOrden.PENDIENTE,
+            },
+            detalles,
+            // Toda orden genera un registro de pago.
+            pago: {
+                id: 0,
+                ordenId: 0,
                 metodo:
                     metodoPago,
                 estado:
                     EstadoPago.PENDIENTE,
                 monto:
                     total,
-            });
+            },
+            carritoId:
+                carrito.id,
+        });
+    }
 
 
-        // Después de generar la compra se limpia el carrito.
-        await this.carritoRepo.vaciar(
-            carrito.id,
-        );
+    // el cliente solo ve sus ordenes, el admin ve cualquiera.
+    async obtenerOrden(
+        usuarioId: number,
+        ordenId: number,
+    ): Promise<OrdenDetalle> {
 
+        const orden =
+            await this.obtenerOrdenConAcceso(
+                usuarioId,
+                ordenId,
+            );
+
+        const detalles =
+            await this.ordenRepo.obtenerDetalles(
+                orden.id,
+            );
+
+        const pago =
+            await this.pagoRepo.obtenerPorOrden(
+                orden.id,
+            );
+
+        const envio =
+            await this.envioRepo.obtenerPorOrden(
+                orden.id,
+            );
 
         return {
             orden,
+            detalles,
             pago,
+            envio,
         };
     }
 
 
-    async obtenerOrden(
-        ordenId: number,
-    ): Promise<Orden> {
-
-        const orden =
-            await this.ordenRepo.obtenerPorId(
-                ordenId,
-            );
-
-        if (!orden) {
-            throw new OrdenNoEncontradaError();
-        }
-
-        return orden;
-    }
-
-
-    async listarOrdenesUsuario(
+    // el cliente solo recibe sus propias ordenes aunque pida otro usuario.
+    // el admin puede filtrar por estado, fecha y cliente.
+    async listarOrdenes(
         usuarioId: number,
+        filtros: FiltrosOrden = {},
     ): Promise<Orden[]> {
 
+        const usuario =
+            await this.usuarioRepo.obtenerPorId(
+                usuarioId,
+            );
+
+        if (!usuario) {
+            throw new UsuarioNoEncontradoError();
+        }
+
+        if (usuario.rol === RolUsuario.ADMINISTRADOR) {
+            return this.ordenRepo.listar(
+                filtros,
+            );
+        }
+
         return this.ordenRepo.listar({
+            ...filtros,
             usuarioId,
         });
     }
 
 
+    // el cliente paga su orden. no hay tarjeta real, solo se marca como pagada.
+    async pagarOrden(
+        usuarioId: number,
+        ordenId: number,
+    ): Promise<Pago> {
+
+        const orden =
+            await this.obtenerOrdenConAcceso(
+                usuarioId,
+                ordenId,
+            );
+
+        const pago =
+            await this.pagoRepo.obtenerPorOrden(
+                orden.id,
+            );
+
+        if (!pago) {
+            throw new PagoNoEncontradoError();
+        }
+
+        if (pago.estado === EstadoPago.PAGADO) {
+            throw new PagoYaRealizadoError();
+        }
+
+        pago.estado =
+            EstadoPago.PAGADO;
+
+        const actualizado =
+            await this.pagoRepo.actualizar(
+                pago,
+            );
+
+        return actualizado!;
+    }
+
+
     // Simula la confirmación o rechazo del pago.
-    // Posteriormente quedará expuesto mediante el servicio HTTP.
+    // el admin puede poner el pago en cualquier estado
+    // (por ejemplo confirmar una transferencia o marcarlo como fallido).
     async cambiarEstadoPago(
+        usuarioId: number,
         ordenId: number,
         nuevoEstado: EstadoPago,
     ): Promise<Pago> {
+
+        await validarAdministrador(
+            this.usuarioRepo,
+            usuarioId,
+            'cambiar el estado de un pago',
+        );
+
 
         const orden =
             await this.ordenRepo.obtenerPorId(
@@ -348,7 +416,8 @@ export class OrdenService {
         nuevoEstado: EstadoOrden,
     ): Promise<Orden> {
 
-        await this.validarAdministrador(
+        await validarAdministrador(
+            this.usuarioRepo,
             usuarioId,
             'cambiar el estado de una orden',
         );
@@ -364,54 +433,7 @@ export class OrdenService {
         }
 
 
-        /*
-         * PENDIENTE -> PROCESANDO
-         * únicamente cuando el pago está confirmado.
-         */
-        if (
-            orden.estado ===
-            EstadoOrden.PENDIENTE &&
-            nuevoEstado ===
-            EstadoOrden.PROCESANDO
-        ) {
-
-            const pago =
-                await this.pagoRepo.obtenerPorOrden(
-                    orden.id,
-                );
-
-            if (
-                !pago ||
-                pago.estado !==
-                EstadoPago.PAGADO
-            ) {
-                throw new PagoPendienteError();
-            }
-        }
-
-
-        /*
-         * PROCESANDO -> ENVIADO
-         * requiere que ya exista guía y paquetería.
-         */
-        if (
-            orden.estado ===
-            EstadoOrden.PROCESANDO &&
-            nuevoEstado ===
-            EstadoOrden.ENVIADO
-        ) {
-
-            const envio =
-                await this.envioRepo.obtenerPorOrden(
-                    orden.id,
-                );
-
-            if (!envio) {
-                throw new EnvioNoEncontradoError();
-            }
-        }
-
-
+        // los estados van en orden y no se puede saltar ninguno.
         const siguienteEstado:
             Partial<
                 Record<
@@ -442,6 +464,49 @@ export class OrdenService {
         }
 
 
+        // PENDIENTE -> PROCESANDO
+        // únicamente cuando el pago está confirmado.
+        if (
+            nuevoEstado ===
+            EstadoOrden.PROCESANDO
+        ) {
+
+            const pago =
+                await this.pagoRepo.obtenerPorOrden(
+                    orden.id,
+                );
+
+            if (
+                !pago ||
+                pago.estado !==
+                EstadoPago.PAGADO
+            ) {
+                throw new PagoPendienteError();
+            }
+        }
+
+
+        // PROCESANDO -> ENVIADO
+        // requiere que ya exista guía y paquetería.
+        // enviado -> entregado: tambien usamos el envio para guardar la fecha.
+        const envio =
+            await this.envioRepo.obtenerPorOrden(
+                orden.id,
+            );
+
+        if (
+            (
+                nuevoEstado ===
+                EstadoOrden.ENVIADO ||
+                nuevoEstado ===
+                EstadoOrden.ENTREGADO
+            ) &&
+            !envio
+        ) {
+            throw new EnvioNoEncontradoError();
+        }
+
+
         orden.estado =
             nuevoEstado;
 
@@ -452,31 +517,19 @@ export class OrdenService {
             );
 
 
-        /*
-         * Al entregar la orden se registra
-         * también la fecha de entrega.
-         */
+        // Al entregar la orden se registra
+        // también la fecha de entrega.
         if (
             nuevoEstado ===
             EstadoOrden.ENTREGADO
         ) {
 
-            const envio =
-                await this.envioRepo.obtenerPorOrden(
-                    orden.id,
-                );
-
-            if (!envio) {
-                throw new EnvioNoEncontradoError();
-            }
-
-
-            envio.fechaEntrega =
+            envio!.fechaEntrega =
                 new Date();
 
 
             await this.envioRepo.actualizar(
-                envio,
+                envio!,
             );
         }
 
@@ -494,7 +547,8 @@ export class OrdenService {
         numeroGuia: string,
     ): Promise<Envio> {
 
-        await this.validarAdministrador(
+        await validarAdministrador(
+            this.usuarioRepo,
             usuarioId,
             'registrar un envío',
         );
@@ -545,12 +599,19 @@ export class OrdenService {
 
 
     async consultarEnvio(
+        usuarioId: number,
         ordenId: number,
     ): Promise<Envio> {
 
+        const orden =
+            await this.obtenerOrdenConAcceso(
+                usuarioId,
+                ordenId,
+            );
+
         const envio =
             await this.envioRepo.obtenerPorOrden(
-                ordenId,
+                orden.id,
             );
 
         if (!envio) {
@@ -561,10 +622,12 @@ export class OrdenService {
     }
 
 
-    private async validarAdministrador(
+    // busca la orden y revisa que sea del usuario que la pide.
+    // el admin puede ver cualquier orden.
+    private async obtenerOrdenConAcceso(
         usuarioId: number,
-        accion: string,
-    ): Promise<void> {
+        ordenId: number,
+    ): Promise<Orden> {
 
         const usuario =
             await this.usuarioRepo.obtenerPorId(
@@ -576,13 +639,25 @@ export class OrdenService {
         }
 
 
+        const orden =
+            await this.ordenRepo.obtenerPorId(
+                ordenId,
+            );
+
+        if (!orden) {
+            throw new OrdenNoEncontradaError();
+        }
+
+
         if (
             usuario.rol !==
-            RolUsuario.ADMINISTRADOR
+            RolUsuario.ADMINISTRADOR &&
+            orden.usuarioId !== usuarioId
         ) {
-            throw new PermisoDenegadoError(
-                accion,
-            );
+            throw new OrdenAjenaError();
         }
+
+
+        return orden;
     }
 }

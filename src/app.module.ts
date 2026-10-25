@@ -19,8 +19,24 @@ import type {
 } from './catalogo/dominio/repositories/iProductoRepository';
 
 import type {
+    IVarianteProductoRepository,
+} from './catalogo/dominio/repositories/iVarianteProductoRepository';
+
+import type {
+    ICategoriaRepository,
+} from './catalogo/dominio/repositories/iCategoriaRepository';
+
+import type {
     IUsuarioRepository,
 } from './usuarios/dominio/repositories/iUsuarioRepository';
+
+import {
+    VarianteProductoMemoriaRepository,
+} from './infra/memoria/varianteProductoMemoriaRepository';
+
+import {
+    CategoriaMemoriaRepository,
+} from './infra/memoria/categoriaMemoriaRepository';
 
 import {
     ProductoMemoriaRepository,
@@ -31,8 +47,10 @@ import {
 } from './infra/memoria/usuarioMemoriaRepository';
 
 import {
+    CATEGORIA_REPOSITORY,
     PRODUCTO_REPOSITORY,
     USUARIO_REPOSITORY,
+    VARIANTE_REPOSITORY,
 } from './infra/tokens';
 
 
@@ -53,6 +71,22 @@ import {
 
         {
             provide:
+                VARIANTE_REPOSITORY,
+
+            useFactory: () =>
+                new VarianteProductoMemoriaRepository(),
+        },
+
+        {
+            provide:
+                CATEGORIA_REPOSITORY,
+
+            useFactory: () =>
+                new CategoriaMemoriaRepository(),
+        },
+
+        {
+            provide:
                 USUARIO_REPOSITORY,
 
             useFactory: () =>
@@ -65,6 +99,8 @@ import {
 
             inject: [
                 PRODUCTO_REPOSITORY,
+                VARIANTE_REPOSITORY,
+                CATEGORIA_REPOSITORY,
                 USUARIO_REPOSITORY,
             ],
 
@@ -72,11 +108,19 @@ import {
                 productoRepo:
                     IProductosRepository,
 
+                varianteRepo:
+                    IVarianteProductoRepository,
+
+                categoriaRepo:
+                    ICategoriaRepository,
+
                 usuarioRepo:
                     IUsuarioRepository,
             ) =>
                 new CatalogoService(
                     productoRepo,
+                    varianteRepo,
+                    categoriaRepo,
                     usuarioRepo,
                 ),
         },

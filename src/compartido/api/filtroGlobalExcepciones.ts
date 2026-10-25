@@ -9,6 +9,7 @@ import {
 import { ErrorDominio } from '../errorDominio';
 
 import {
+    CategoriaNoEncontradaError,
     ProductoNoEncontradoError,
     VarianteNoEncontradaError,
 } from '../../catalogo/dominio/errores/catalogoErrores';
@@ -19,11 +20,13 @@ import {
 
 import {
     EnvioNoEncontradoError,
+    OrdenAjenaError,
     OrdenNoEncontradaError,
     PagoNoEncontradoError,
 } from '../../ordenes/dominio/errores/ordenesErrores';
 
 import {
+    CredencialesInvalidasError,
     DireccionNoEncontradaError,
     PermisoDenegadoError,
     UsuarioNoEncontradoError,
@@ -107,6 +110,8 @@ export class FiltroGlobalExcepciones
             exception instanceof
             ProductoNoEncontradoError ||
             exception instanceof
+            CategoriaNoEncontradaError ||
+            exception instanceof
             VarianteNoEncontradaError ||
             exception instanceof
             UsuarioNoEncontradoError ||
@@ -131,11 +136,30 @@ export class FiltroGlobalExcepciones
 
 
         /*
-         * Usuario autenticado pero sin permiso.
+         * correo o contraseña incorrectos al iniciar sesion.
          */
         else if (
             exception instanceof
-            PermisoDenegadoError
+            CredencialesInvalidasError
+        ) {
+
+            status =
+                HttpStatus.UNAUTHORIZED;
+
+            mensaje =
+                exception.message;
+        }
+
+
+        /*
+         * Usuario autenticado pero sin permiso.
+         * tambien cuando quiere ver algo de otro usuario.
+         */
+        else if (
+            exception instanceof
+            PermisoDenegadoError ||
+            exception instanceof
+            OrdenAjenaError
         ) {
 
             status =

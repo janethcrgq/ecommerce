@@ -15,8 +15,8 @@ export class UsuarioMemoriaRepository
                 nombre: 'Cliente Prueba',
                 correo: 'cliente@tienda.mx',
 
-                // Temporal mientras llegamos a bcrypt.
-                contraseniaHash: 'hash-cliente',
+                // hash de bcrypt de la contraseña Cliente123!
+                contraseniaHash: '$2b$10$dQRTW6lGOAhbihCY4lBSbOJytMc.NPwE9FeyTwRKzpiJDA5353Bda',
 
                 rol: RolUsuario.CLIENTE,
                 telefono: '6440000001',
@@ -26,8 +26,8 @@ export class UsuarioMemoriaRepository
                 nombre: 'Administrador',
                 correo: 'admin@tienda.mx',
 
-                // Temporal mientras llegamos a bcrypt.
-                contraseniaHash: 'hash-admin',
+                // hash de bcrypt de la contraseña Admin123!
+                contraseniaHash: '$2b$10$Vuae.Fvlpb9PJ6PJq1RE9Og9ZCGwDJzZhLjKKPKs5JUuif6/tWMhi',
 
                 rol: RolUsuario.ADMINISTRADOR,
                 telefono: '6440000002',

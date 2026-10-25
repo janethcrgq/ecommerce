@@ -57,3 +57,20 @@ export class EnvioYaRegistradoError extends ErrorDominio {
     );
   }
 }
+
+export class OrdenAjenaError extends ErrorDominio {
+  constructor() {
+    super(
+      'La orden pertenece a otro usuario',
+    );
+  }
+}
+
+
+export class PagoYaRealizadoError extends ErrorDominio {
+  constructor() {
+    super(
+      'El pago de esta orden ya fue realizado',
+    );
+  }
+}

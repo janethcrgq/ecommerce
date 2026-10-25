@@ -2,7 +2,7 @@
 
 Proyecto de una tienda en línea de ropa desarrollado para la materia Temas Emergentes de Aplicaciones Web.
 
-En este primer avance se trabajó únicamente con la parte de dominio del sistema. Los datos se manejan temporalmente en memoria y todavía no se utiliza una base de datos ni un servidor.
+Esta carpeta contiene el dominio del sistema (las reglas del negocio), organizado por área: `catalogo`, `carrito`, `ordenes`, `inventario`, `usuarios` y `dashboard`. Cada área tiene sus entidades, errores, contratos de repositorio (`repositories`) y servicios. Las implementaciones de los contratos están en `infra`.
 
 ## Requisitos
 
@@ -17,10 +17,11 @@ Después de descargar o clonar el repositorio, instalar las dependencias con:
 
 ```bash
 npm install
+```
 
 ## Documentación del proyecto
 
-Antes de comenzar con el código se realizó la documentación del proyecto, donde se definieron el dominio, las entidades, las reglas de negocio, los diagramas y los escenarios que se utilizaron para este avance.
+Antes de comenzar con el código se realizó la documentación del proyecto, donde se definieron el dominio, las entidades, las reglas de negocio, los diagramas y los escenarios.
 
 La documentación completa se puede consultar aquí:
 

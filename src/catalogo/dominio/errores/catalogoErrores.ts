@@ -34,3 +34,35 @@ export class VarianteNoEncontradaError extends ErrorDominio {
     );
   }
 }
+
+export class CategoriaNoEncontradaError extends ErrorDominio {
+  constructor(categoriaId: number) {
+    super(
+      `No existe la categoría ${categoriaId}`,
+    );
+  }
+}
+
+export class CategoriaRepetidaError extends ErrorDominio {
+  constructor(nombre: string) {
+    super(
+      `Ya existe una categoría llamada ${nombre}`,
+    );
+  }
+}
+
+export class CategoriaConProductosError extends ErrorDominio {
+  constructor() {
+    super(
+      'No se puede eliminar una categoría que todavía tiene productos',
+    );
+  }
+}
+
+export class VarianteRepetidaError extends ErrorDominio {
+  constructor() {
+    super(
+      'El producto ya tiene una variante con esa talla y color',
+    );
+  }
+}

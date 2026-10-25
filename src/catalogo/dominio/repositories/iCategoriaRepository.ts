@@ -9,6 +9,10 @@ export interface ICategoriaRepository {
     id: number,
   ): Promise<Categoria | null>;
 
+  obtenerPorNombre(
+    nombre: string,
+  ): Promise<Categoria | null>;
+
   listar(): Promise<Categoria[]>;
 
   actualizar(

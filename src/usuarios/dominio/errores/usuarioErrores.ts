@@ -8,6 +8,22 @@ export class UsuarioNoEncontradoError extends ErrorDominio {
   }
 }
 
+export class CorreoYaRegistradoError extends ErrorDominio {
+  constructor() {
+    super(
+      'Ya existe una cuenta con ese correo',
+    );
+  }
+}
+
+export class CredencialesInvalidasError extends ErrorDominio {
+  constructor() {
+    super(
+      'El correo o la contraseña no son correctos',
+    );
+  }
+}
+
 export class DireccionNoEncontradaError extends ErrorDominio {
   constructor() {
     super(

@@ -9,6 +9,8 @@ import {
 
 import { IAjusteInventarioRepository } from '../repositories/iAjusteInventarioRepository';
 
+import { VarianteProducto } from '../../../catalogo/dominio/entidades/varianteProducto';
+
 import {
   VarianteNoEncontradaError,
 } from '../../../catalogo/dominio/errores/catalogoErrores';
@@ -18,13 +20,8 @@ import {
 } from '../../../catalogo/dominio/repositories/iVarianteProductoRepository';
 
 import {
-  PermisoDenegadoError,
-  UsuarioNoEncontradoError,
-} from '../../../usuarios/dominio/errores/usuarioErrores';
-
-import {
-  RolUsuario,
-} from '../../../usuarios/dominio/enums/rolUsuarioEnum';
+  validarAdministrador,
+} from '../../../usuarios/dominio/reglas/validarAdministrador';
 
 import {
   IUsuarioRepository,
@@ -53,8 +50,10 @@ export class InventarioService {
   ): Promise<AjusteInventario> {
 
     // Solamente un administrador puede modificar inventario.
-    await this.validarAdministrador(
+    await validarAdministrador(
+      this.usuarioRepo,
       usuarioId,
+      'ajustar el inventario',
     );
 
 
@@ -104,16 +103,50 @@ export class InventarioService {
   }
 
 
-  async consultarHistorial():
-  Promise<AjusteInventario[]> {
+  // lista las variantes con su stock.
+  // con soloStockBajo solo salen las que estan en o debajo de su minimo.
+  async listarVariantes(
+    usuarioId: number,
+    soloStockBajo: boolean,
+  ): Promise<VarianteProducto[]> {
 
-    return this.ajusteRepo.listar();
+    await validarAdministrador(
+      this.usuarioRepo,
+      usuarioId,
+      'consultar el inventario',
+    );
+
+    const variantes =
+      await this.varianteRepo.listar();
+
+    if (!soloStockBajo) {
+      return variantes;
+    }
+
+    return variantes.filter(
+      (variante) =>
+        variante.stock <=
+        variante.stockMinimo,
+    );
   }
 
 
-  async consultarHistorialVariante(
-    varianteId: number,
+  async consultarHistorial(
+    usuarioId: number,
+    varianteId?: number,
   ): Promise<AjusteInventario[]> {
+
+    await validarAdministrador(
+      this.usuarioRepo,
+      usuarioId,
+      'consultar el historial de ajustes',
+    );
+
+
+    if (varianteId === undefined) {
+      return this.ajusteRepo.listar();
+    }
+
 
     const variante =
       await this.varianteRepo.obtenerPorId(
@@ -130,30 +163,5 @@ export class InventarioService {
     return this.ajusteRepo.listarPorVariante(
       varianteId,
     );
-  }
-
-
-  private async validarAdministrador(
-    usuarioId: number,
-  ): Promise<void> {
-
-    const usuario =
-      await this.usuarioRepo.obtenerPorId(
-        usuarioId,
-      );
-
-    if (!usuario) {
-      throw new UsuarioNoEncontradoError();
-    }
-
-
-    if (
-      usuario.rol !==
-      RolUsuario.ADMINISTRADOR
-    ) {
-      throw new PermisoDenegadoError(
-        'ajustar el inventario',
-      );
-    }
   }
 }

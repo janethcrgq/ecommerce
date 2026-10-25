@@ -1,4 +1,6 @@
 import { VarianteProducto } from '../entidades/varianteProducto';
+import { Color } from '../enums/colorEnum';
+import { Talla } from '../enums/tallaEnum';
 
 export interface ItemDescuento {
   varianteId: number;
@@ -12,6 +14,14 @@ export interface IVarianteProductoRepository {
 
   obtenerPorId(
     id: number,
+  ): Promise<VarianteProducto | null>;
+
+  listar(): Promise<VarianteProducto[]>;
+
+  obtenerPorProductoTallaColor(
+    productoId: number,
+    talla: Talla,
+    color: Color,
   ): Promise<VarianteProducto | null>;
 
   listarPorProducto(

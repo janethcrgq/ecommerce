@@ -47,6 +47,6 @@ export class ProductosController {
     ) {
 
         return this.catalogoService
-            .obtenerPorId(id);
+            .obtenerDetalle(id);
     }
 }
