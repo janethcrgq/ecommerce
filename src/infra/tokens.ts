@@ -9,3 +9,24 @@ export const CATEGORIA_REPOSITORY =
 
 export const USUARIO_REPOSITORY =
   Symbol('USUARIO_REPOSITORY');
+
+export const DIRECCION_REPOSITORY =
+  Symbol('DIRECCION_REPOSITORY');
+
+export const CARRITO_REPOSITORY =
+  Symbol('CARRITO_REPOSITORY');
+
+export const ORDEN_REPOSITORY =
+  Symbol('ORDEN_REPOSITORY');
+
+export const PAGO_REPOSITORY =
+  Symbol('PAGO_REPOSITORY');
+
+export const ENVIO_REPOSITORY =
+  Symbol('ENVIO_REPOSITORY');
+
+export const AJUSTE_REPOSITORY =
+  Symbol('AJUSTE_REPOSITORY');
+
+export const ENCRIPTADOR =
+  Symbol('ENCRIPTADOR');

@@ -1,3 +1,5 @@
+import './configuracion';
+
 import {
     LoggingInterceptor,
 } from './compartido/api/logging.interceptor';
