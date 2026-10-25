@@ -113,51 +113,120 @@ ENTREGADO
 ---
 ## Tecnologías
 
-Actualmente el proyecto utiliza:
-
-- TypeScript
-- Node.js
-- npm
-- Git
-- GitHub
-
-A lo largo del desarrollo se irán integrando las demás tecnologías necesarias para completar la aplicación web.
+- TypeScript y Node.js
+- NestJS (servicio REST)
+- Prisma y MySQL (base de datos)
+- JWT y bcrypt (inicio de sesión y contraseñas)
+- class-validator (validación de lo que llega al servicio)
+- Swagger (documentación del servicio)
 
 ---
 
-## Instalación
+## Cómo levantar el servicio desde cero
 
-Para trabajar con el proyecto es necesario tener instalado Node.js y npm.
+### Requisitos
 
-Después de clonar el repositorio:
+- Node.js 22 o más nuevo y npm
+- MySQL 8 corriendo en tu computadora
+
+### Pasos
+
+1. Clonar el repositorio y entrar a la rama del servicio:
 
 ```bash
+git clone https://github.com/janethcrgq/ecommerce.git
+cd ecommerce
+git checkout feat-servicio
 npm install
 ```
 
-Esto instalará las dependencias necesarias.
+2. Crear el archivo `.env` copiando el de ejemplo y poner tus datos reales (usuario y contraseña de MySQL, y una llave secreta para el JWT):
 
----
+```bash
+cp .env.example .env
+```
 
-## Ejecución
+| Variable | Para qué sirve |
+|---|---|
+| `DATABASE_*` | Datos de conexión a MySQL |
+| `JWT_SECRET` | Llave con la que se firman las credenciales (inventa una larga) |
+| `JWT_EXPIRES_IN` | Cuánto dura la sesión, por ejemplo `1h` |
+| `PORT` | Puerto del servicio (por defecto 3000) |
+| `FRONTEND_ORIGIN` | Único origen que puede usar el servicio desde un navegador |
+| `ALMACENAMIENTO` | `prisma` (base de datos real) o `memoria` (datos de prueba, sin base de datos) |
 
-Para ejecutar el proyecto durante el desarrollo:
+El archivo `.env` nunca se sube al repositorio.
+
+3. Crear la base de datos vacía en MySQL (el nombre debe ser el mismo de `DATABASE_NAME`):
+
+```sql
+CREATE DATABASE tienda_en_linea;
+```
+
+4. Generar el cliente de Prisma, crear las tablas y cargar los datos de ejemplo:
+
+```bash
+npm run prisma:generar
+npm run db:migrar
+npm run db:seed
+```
+
+5. Arrancar el servicio:
 
 ```bash
 npm run dev
 ```
 
-Para comprobar los tipos de TypeScript:
+El servicio queda en `http://localhost:3000` y la documentación para probar cada endpoint en `http://localhost:3000/docs`.
+
+### Usuarios de prueba (los crea el seed)
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | admin@tienda.mx | Admin123! |
+| Cliente | cliente@tienda.mx | Cliente123! |
+| Cliente | maria@tienda.mx | Cliente123! |
+
+### Probar la seguridad en Swagger
+
+1. En `POST /auth/sesion` inicia sesión y copia el `token` de la respuesta.
+2. Pulsa el botón **Authorize** (arriba a la derecha) y pega el token.
+3. Prueba `POST /productos`: sin token responde **401**, con el token del cliente **403** y con el del administrador **201**.
+
+### Otros comandos
 
 ```bash
-npm run typecheck
+npm run test:dominio   # prueba las reglas del negocio sin base de datos
+npm run typecheck      # revisa los tipos de TypeScript
+npm run build          # compila el proyecto
 ```
 
-Para compilar el proyecto:
+---
 
-```bash
-npm run build
-```
+## Roles
+
+| Rol | Qué puede hacer |
+|---|---|
+| Visitante | Ver catálogo y categorías, registrarse e iniciar sesión |
+| Cliente | Lo anterior, y además carrito, direcciones, comprar, pagar y ver sus órdenes y envíos |
+| Administrador | Productos, variantes, categorías, inventario, órdenes (estado, pago y envío) y dashboard |
+
+El rol viaja dentro de la credencial (JWT) firmada. Si alguien la cambia a mano, el servicio la rechaza con 401.
+
+---
+
+## Respuestas del servicio
+
+Toda respuesta correcta tiene la forma `{ "ok": true, "datos": ... }` y toda respuesta de error `{ "ok": false, "statusCode", "mensaje", "ruta", "fecha" }`.
+
+| Código | Cuándo ocurre |
+|---|---|
+| 201 | Se creó algo |
+| 400 | El dato que llega está mal formado |
+| 401 | No hay credencial, expiró o fue alterada |
+| 403 | La credencial es válida pero el rol no tiene permiso |
+| 404 | No existe lo que se pidió |
+| 409 | Una regla del negocio lo impide (por ejemplo stock insuficiente) |
 
 ---
 

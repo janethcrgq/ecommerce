@@ -8,20 +8,23 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "test:dominio": "tsx src/pruebas-dominio.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prisma:generar": "prisma generate --config prisma7.config.ts",
+    "db:migrar": "prisma migrate deploy --config prisma7.config.ts",
+    "db:seed": "prisma db seed --config prisma7.config.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LuisRHigareda/TiendaEnLinea.git"
+    "url": "git+https://github.com/janethcrgq/ecommerce.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/LuisRHigareda/TiendaEnLinea/issues"
+    "url": "https://github.com/janethcrgq/ecommerce/issues"
   },
-  "homepage": "https://github.com/LuisRHigareda/TiendaEnLinea#readme",
+  "homepage": "https://github.com/janethcrgq/ecommerce#readme",
   "devDependencies": {
     "@nestjs/cli": "^12.0.8",
     "@types/node": "^26.6.5",
