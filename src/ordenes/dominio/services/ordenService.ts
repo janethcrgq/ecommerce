@@ -9,6 +9,7 @@ import { MetodoPago } from '../enums/metodoPagoEnum';
 
 import {
     EnvioNoEncontradoError,
+    EnvioPendienteError,
     EnvioYaRegistradoError,
     OrdenAjenaError,
     OrdenNoEncontradaError,
@@ -503,7 +504,7 @@ export class OrdenService {
             ) &&
             !envio
         ) {
-            throw new EnvioNoEncontradoError();
+            throw new EnvioPendienteError();
         }
 
 

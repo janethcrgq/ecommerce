@@ -50,6 +50,16 @@ export class EnvioNoEncontradoError extends ErrorDominio {
 }
 
 
+// regla: una orden no pasa a enviada ni a entregada sin su envío registrado.
+export class EnvioPendienteError extends ErrorDominio {
+  constructor() {
+    super(
+      'La orden no puede enviarse ni entregarse mientras no tenga un envío registrado',
+    );
+  }
+}
+
+
 export class EnvioYaRegistradoError extends ErrorDominio {
   constructor() {
     super(
