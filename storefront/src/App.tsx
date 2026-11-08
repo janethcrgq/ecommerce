@@ -5,7 +5,8 @@ import { Layout } from './compartido/layout/Layout';
 // cada pantalla se descarga solo cuando alguien la visita.
 // lazy solo funciona con pantallas que usan `export default`.
 const PaginaInicio = lazy(() => import('./caracteristicas/inicio/PaginaInicio'));
-const PaginaEntrar = lazy(() => import('./caracteristicas/sesion/PaginaEntrar'));
+const PaginaCatalogo = lazy(() => import('./caracteristicas/catalogo/PaginaCatalogo'));
+const PaginaEntrar =lazy(() => import('./caracteristicas/sesion/PaginaEntrar'));
 const PaginaRegistro = lazy(() => import('./caracteristicas/sesion/PaginaRegistro'));
 const NoEncontrado = lazy(() => import('./compartido/paginas/NoEncontrado'));
 
@@ -15,6 +16,7 @@ export default function App() {
       {/* todas las pantallas van dentro del Layout para compartir encabezado y pie */}
       <Route element={<Layout />}>
         <Route index element={<PaginaInicio />} />
+        <Route path="productos" element={<PaginaCatalogo />} />
         <Route path="entrar" element={<PaginaEntrar />} />
         <Route path="registro" element={<PaginaRegistro />} />
 
