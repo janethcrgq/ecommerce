@@ -55,6 +55,10 @@ export class FiltroGlobalExcepciones
         let status =
             HttpStatus.INTERNAL_SERVER_ERROR;
 
+        // nombre del error de dominio (por ejemplo StockInsuficienteError).
+        // el portal lo usa para mostrar un mensaje en lenguaje de usuario.
+        let codigo: string | undefined;
+
         let mensaje:
             string | string[] =
             'Ocurrió un error interno';
@@ -132,6 +136,9 @@ export class FiltroGlobalExcepciones
 
             mensaje =
                 exception.message;
+
+            codigo =
+                exception.name;
         }
 
 
@@ -148,6 +155,9 @@ export class FiltroGlobalExcepciones
 
             mensaje =
                 exception.message;
+
+            codigo =
+                exception.name;
         }
 
 
@@ -167,6 +177,9 @@ export class FiltroGlobalExcepciones
 
             mensaje =
                 exception.message;
+
+            codigo =
+                exception.name;
         }
 
 
@@ -184,6 +197,9 @@ export class FiltroGlobalExcepciones
 
             mensaje =
                 exception.message;
+
+            codigo =
+                exception.name;
         }
 
 
@@ -194,6 +210,7 @@ export class FiltroGlobalExcepciones
             statusCode:
                 status,
             mensaje,
+            codigo,
             ruta:
                 request.url,
             fecha:
