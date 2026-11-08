@@ -9,6 +9,7 @@ import { Type } from 'class-transformer';
 import {
     IsBoolean,
     IsEnum,
+    IsIn,
     IsInt,
     IsNotEmpty,
     IsNumber,
@@ -125,4 +126,20 @@ export class FiltrosProductoDto {
     @Type(() => Number)
     @IsNumber()
     precioMax?: number;
+
+    @ApiPropertyOptional({
+        enum: ['precio', 'nombre'],
+        description: 'Campo por el que se ordena la lista',
+    })
+    @IsOptional()
+    @IsIn(['precio', 'nombre'])
+    ordenarPor?: 'precio' | 'nombre';
+
+    @ApiPropertyOptional({
+        enum: ['asc', 'desc'],
+        description: 'Dirección del orden (por defecto asc)',
+    })
+    @IsOptional()
+    @IsIn(['asc', 'desc'])
+    direccion?: 'asc' | 'desc';
 }

@@ -388,6 +388,118 @@ async function main(): Promise<void> {
         include: { variantes: true },
     });
 
+    // más productos para que el catálogo se vea lleno y se pueda
+    // probar la búsqueda, los filtros y el orden por precio o nombre.
+    const masProductos = [
+        {
+            categoriaId: camisetas.id,
+            nombre: 'Camiseta gris',
+            descripcion: 'Camiseta casual de algodón en color gris',
+            precio: 320,
+            imagen: 'camiseta-gris.jpg',
+            variantes: [
+                { talla: Talla.S, color: Color.GRIS, stock: 6, stockMinimo: 2 },
+                { talla: Talla.M, color: Color.GRIS, stock: 9, stockMinimo: 2 },
+                { talla: Talla.L, color: Color.GRIS, stock: 4, stockMinimo: 2 },
+            ],
+        },
+        {
+            categoriaId: camisetas.id,
+            nombre: 'Camiseta beige',
+            descripcion: 'Camiseta de algodón en color beige',
+            precio: 420,
+            imagen: 'camiseta-beige.jpg',
+            variantes: [
+                { talla: Talla.M, color: Color.BEIGE, stock: 7, stockMinimo: 2 },
+                { talla: Talla.L, color: Color.BEIGE, stock: 5, stockMinimo: 2 },
+                { talla: Talla.XL, color: Color.BEIGE, stock: 3, stockMinimo: 2 },
+            ],
+        },
+        {
+            categoriaId: camisetas.id,
+            nombre: 'Camiseta polo azul',
+            descripcion: 'Polo clásico de color azul con cuello',
+            precio: 480,
+            imagen: 'camiseta-polo-azul.jpg',
+            variantes: [
+                { talla: Talla.M, color: Color.AZUL, stock: 8, stockMinimo: 2 },
+                { talla: Talla.L, color: Color.AZUL, stock: 6, stockMinimo: 2 },
+            ],
+        },
+        {
+            categoriaId: sudaderas.id,
+            nombre: 'Sudadera con gorro negra',
+            descripcion: 'Sudadera con capucha y bolsa frontal en color negro',
+            precio: 750,
+            imagen: 'sudadera-negra-gorro.jpg',
+            variantes: [
+                { talla: Talla.M, color: Color.NEGRO, stock: 6, stockMinimo: 2 },
+                { talla: Talla.L, color: Color.NEGRO, stock: 4, stockMinimo: 2 },
+                { talla: Talla.XL, color: Color.NEGRO, stock: 2, stockMinimo: 2 },
+            ],
+        },
+        {
+            categoriaId: sudaderas.id,
+            nombre: 'Sudadera verde',
+            descripcion: 'Sudadera casual de color verde',
+            precio: 690,
+            imagen: 'sudadera-verde.jpg',
+            variantes: [
+                { talla: Talla.M, color: Color.VERDE, stock: 5, stockMinimo: 1 },
+                { talla: Talla.L, color: Color.VERDE, stock: 3, stockMinimo: 1 },
+            ],
+        },
+        {
+            categoriaId: pantalones.id,
+            nombre: 'Pantalón chino beige',
+            descripcion: 'Pantalón de vestir casual en color beige',
+            precio: 580,
+            imagen: 'pantalon-chino-beige.jpg',
+            variantes: [
+                { talla: Talla.M, color: Color.BEIGE, stock: 6, stockMinimo: 2 },
+                { talla: Talla.L, color: Color.BEIGE, stock: 5, stockMinimo: 2 },
+            ],
+        },
+        {
+            categoriaId: pantalones.id,
+            nombre: 'Jogger gris',
+            descripcion: 'Pantalón deportivo ajustable en color gris',
+            precio: 520,
+            imagen: 'jogger-gris.jpg',
+            variantes: [
+                { talla: Talla.S, color: Color.GRIS, stock: 4, stockMinimo: 1 },
+                { talla: Talla.M, color: Color.GRIS, stock: 8, stockMinimo: 1 },
+                { talla: Talla.L, color: Color.GRIS, stock: 6, stockMinimo: 1 },
+            ],
+        },
+        {
+            categoriaId: accesorios.id,
+            nombre: 'Gorra negra',
+            descripcion: 'Gorra ajustable de color negro',
+            precio: 250,
+            imagen: 'gorra-negra.jpg',
+            variantes: [
+                { talla: Talla.M, color: Color.NEGRO, stock: 15, stockMinimo: 3 },
+            ],
+        },
+    ];
+
+    for (const producto of masProductos) {
+        await prisma.producto.create({
+            data: {
+                categoriaId: producto.categoriaId,
+                nombre: producto.nombre,
+                descripcion: producto.descripcion,
+                precio: producto.precio,
+                activo: true,
+                imagen: producto.imagen,
+                variantes: {
+                    create: producto.variantes,
+                },
+            },
+        });
+    }
+
     // atajos a las variantes que usamos en las órdenes de ejemplo.
     const camisetaNegraM = camisetaNegra.variantes[1];
     const camisetaBlancaM = camisetaBlanca.variantes[0];

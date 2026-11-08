@@ -39,6 +39,9 @@ import {
     VarianteNoEncontradaError,
 } from '../../../catalogo/dominio/errores/catalogoErrores';
 
+import { Color } from '../../../catalogo/dominio/enums/colorEnum';
+import { Talla } from '../../../catalogo/dominio/enums/tallaEnum';
+
 import { IProductosRepository } from '../../../catalogo/dominio/repositories/iProductoRepository';
 import { IVarianteProductoRepository } from '../../../catalogo/dominio/repositories/iVarianteProductoRepository';
 
@@ -56,10 +59,21 @@ import { IDireccionRepository } from '../../../usuarios/dominio/repositories/iDi
 import { IUsuarioRepository } from '../../../usuarios/dominio/repositories/iUsuarioRepository';
 
 
+// un renglon de la orden junto con los datos del producto que se compro,
+// para poder mostrarlo sin tener que pedir el producto aparte.
+export interface DetalleOrdenConProducto extends DetalleOrden {
+    productoId: number;
+    nombre: string;
+    imagen: string;
+    talla: Talla;
+    color: Color;
+}
+
+
 // una orden completa: sus productos, su pago y su envio (si ya tiene).
 export interface OrdenDetalle {
     orden: Orden;
-    detalles: DetalleOrden[];
+    detalles: DetalleOrdenConProducto[];
     pago: Pago | null;
     envio: Envio | null;
 }
@@ -270,10 +284,47 @@ export class OrdenService {
                 ordenId,
             );
 
-        const detalles =
+        const detallesOrden =
             await this.ordenRepo.obtenerDetalles(
                 orden.id,
             );
+
+        // a cada renglon le agregamos el nombre, la imagen, la talla y el color.
+        const detalles: DetalleOrdenConProducto[] = [];
+
+        for (const detalle of detallesOrden) {
+
+            const variante =
+                await this.varianteRepo.obtenerPorId(
+                    detalle.varianteId,
+                );
+
+            if (!variante) {
+                throw new VarianteNoEncontradaError(
+                    detalle.varianteId,
+                );
+            }
+
+            const producto =
+                await this.productoRepo.obtenerPorId(
+                    variante.productoId,
+                );
+
+            if (!producto) {
+                throw new ProductoNoEncontradoError(
+                    variante.productoId,
+                );
+            }
+
+            detalles.push({
+                ...detalle,
+                productoId: producto.id,
+                nombre: producto.nombre,
+                imagen: producto.imagen,
+                talla: variante.talla,
+                color: variante.color,
+            });
+        }
 
         const pago =
             await this.pagoRepo.obtenerPorOrden(

@@ -82,10 +82,19 @@ export class ProductoPrismaRepository
             };
         }
 
+        // si pidieron un orden se usa ese; si no, por id.
+        const direccion =
+            filtros?.direccion ?? 'asc';
+
+        const orden: Prisma.ProductoOrderByWithRelationInput =
+            filtros?.ordenarPor
+                ? { [filtros.ordenarPor]: direccion }
+                : { id: 'asc' };
+
         const filas =
             await this.prisma.producto.findMany({
                 where,
-                orderBy: { id: 'asc' },
+                orderBy: orden,
             });
 
         return filas.map(

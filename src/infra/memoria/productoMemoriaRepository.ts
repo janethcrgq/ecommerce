@@ -141,6 +141,26 @@ export class ProductoMemoriaRepository
         }
 
 
+        // si pidieron un orden, ordenamos por precio o por nombre.
+        if (filtros?.ordenarPor) {
+
+            const campo =
+                filtros.ordenarPor;
+
+            const factor =
+                filtros.direccion === 'desc'
+                    ? -1
+                    : 1;
+
+            resultado.sort(
+                (a, b) =>
+                    campo === 'precio'
+                        ? (a.precio - b.precio) * factor
+                        : a.nombre.localeCompare(b.nombre) * factor,
+            );
+        }
+
+
         return resultado.map(
             (producto) => ({
                 ...producto,

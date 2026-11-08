@@ -5,6 +5,9 @@ export interface FiltrosProducto {
   nombre?: string;
   precioMin?: number;
   precioMax?: number;
+  // por qué campo ordenar la lista y en qué dirección.
+  ordenarPor?: 'precio' | 'nombre';
+  direccion?: 'asc' | 'desc';
 }
 
 export interface IProductosRepository {

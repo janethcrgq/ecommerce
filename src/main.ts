@@ -56,11 +56,19 @@ async function bootstrap() {
 
     // Origen que posteriormente utilizará el frontend.
     // se lee del .env para no dejarlo escrito dentro del código.
-    // solo ese origen puede usar la API desde un navegador.
-    app.enableCors({
-        origin:
+    // solo esos orígenes pueden usar la API desde un navegador:
+    // el portal del cliente (react, 5173) y el panel del admin (angular, 4200).
+    // en el .env se separan con comas.
+    const origenes =
+        (
             process.env['FRONTEND_ORIGIN']
-            ?? 'http://localhost:5173',
+            ?? 'http://localhost:5173,http://localhost:4200'
+        )
+            .split(',')
+            .map((origen) => origen.trim());
+
+    app.enableCors({
+        origin: origenes,
     });
 
 
