@@ -416,6 +416,16 @@ p {
   animation: girar 0.8s linear infinite;
 }
 
+/* a quien tiene activada la opción de menos movimiento no se le anima nada */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @keyframes girar {
   to {
     transform: rotate(360deg);

@@ -1,32 +1,83 @@
-# React + TypeScript + Vite
+# Portal del cliente - Tienda en Línea
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Portal web (React + TypeScript + Vite) para que los clientes vean el catálogo, armen su carrito, compren y consulten sus órdenes. Es una aplicación independiente que se conecta al servicio (API) de la carpeta raíz del repositorio.
 
-Currently, two official plugins are available:
+## Qué necesitas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20 o más nuevo
+- El servicio de la tienda corriendo (ver el README de la raíz: MySQL, `npm run db:seed` y `npm run dev`)
 
-## React Compiler
+## Cómo correrlo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Prende el servicio desde la raíz del repositorio (`npm run dev`). Debe quedar en `http://localhost:3000`.
+2. En otra terminal:
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+cd storefront
+npm install
+cp .env.example .env
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+3. Abre `http://localhost:5173`.
+
+## A dónde apunta (configuración)
+
+La dirección del servicio está en el archivo `.env` del portal:
+
+```
+VITE_API_URL="http://localhost:3000"
+```
+
+Si el servicio corre en otro puerto o en otra computadora, cambia ese valor y reinicia `npm run dev`. El servicio debe permitir el origen del portal en su variable `FRONTEND_ORIGIN` (por defecto acepta `http://localhost:5173`).
+
+## Cuentas de prueba
+
+| Rol | Correo | Contraseña |
+| --- | --- | --- |
+| Cliente | cliente@tienda.mx | Cliente123! |
+| Cliente | maria@tienda.mx | Cliente123! |
+| Administrador | admin@tienda.mx | Admin123! |
+
+El administrador no compra; su panel es el Avance 4. También puedes crear tu propia cuenta desde "Crear cuenta".
+
+## Pantallas
+
+| Dirección | Pantalla | Requiere sesión |
+| --- | --- | --- |
+| `/` | Inicio con productos destacados | No |
+| `/productos` | Catálogo con búsqueda, filtros y orden | No |
+| `/productos/:id` | Detalle de producto (talla, cantidad, agregar al carrito) | No (para agregar sí) |
+| `/entrar` | Iniciar sesión | No |
+| `/registro` | Crear cuenta | No |
+| `/carrito` | Carrito | Sí |
+| `/compra` | Elegir dirección y pago, confirmar | Sí |
+| `/ordenes` | Historial de órdenes | Sí |
+| `/ordenes/:id` | Detalle de una orden (pago y envío) | Sí |
+| cualquier otra | Página no encontrada (404) | No |
+
+## Cómo está organizado
+
+```
+src/
+  api/             lo que habla con el servicio: cliente http único, tipos, errores y sesión guardada
+  compartido/      lo que usan todas las pantallas: layout, estados (cargando/error/vacío), avisos, formato
+  caracteristicas/ una carpeta por tema: sesion, catalogo, carrito, direcciones, ordenes, inicio
+```
+
+- Toda la comunicación con el servicio pasa por `src/api/cliente.ts`; ninguna pantalla usa axios directo.
+- El formato de respuesta del servicio (`{ ok, datos }` / `{ ok: false, ... }`) se interpreta en ese mismo archivo.
+- Los errores del servicio se traducen a mensajes en lenguaje normal en `src/api/errores.ts`.
+- Cada pantalla que pide datos muestra las 4 situaciones: cargando, error (con "Reintentar"), vacío y con datos.
+
+## Otros comandos
+
+```bash
+npm run build     # revisa los tipos y genera la versión para publicar
+npm run preview   # prueba esa versión
+npm run lint
+```
+
+## Imágenes
+
+Las fotos de los productos están en `public/productos`. 
