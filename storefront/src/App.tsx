@@ -6,7 +6,8 @@ import { Layout } from './compartido/layout/Layout';
 // lazy solo funciona con pantallas que usan `export default`.
 const PaginaInicio = lazy(() => import('./caracteristicas/inicio/PaginaInicio'));
 const PaginaCatalogo = lazy(() => import('./caracteristicas/catalogo/PaginaCatalogo'));
-const PaginaEntrar =lazy(() => import('./caracteristicas/sesion/PaginaEntrar'));
+const PaginaProducto = lazy(() => import('./caracteristicas/catalogo/PaginaProducto'));
+const PaginaEntrar = lazy(() => import('./caracteristicas/sesion/PaginaEntrar'));
 const PaginaRegistro = lazy(() => import('./caracteristicas/sesion/PaginaRegistro'));
 const NoEncontrado = lazy(() => import('./compartido/paginas/NoEncontrado'));
 
@@ -17,6 +18,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<PaginaInicio />} />
         <Route path="productos" element={<PaginaCatalogo />} />
+        <Route path="productos/:id" element={<PaginaProducto />} />
         <Route path="entrar" element={<PaginaEntrar />} />
         <Route path="registro" element={<PaginaRegistro />} />
 
