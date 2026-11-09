@@ -9,7 +9,9 @@ const PaginaInicio = lazy(() => import('./caracteristicas/inicio/PaginaInicio'))
 const PaginaCatalogo = lazy(() => import('./caracteristicas/catalogo/PaginaCatalogo'));
 const PaginaProducto = lazy(() => import('./caracteristicas/catalogo/PaginaProducto'));
 const PaginaCarrito = lazy(() => import('./caracteristicas/carrito/PaginaCarrito'));
-const PaginaCompra = lazy(() => import('./caracteristicas/ordenes/PaginaCompra'));
+const PaginaOrdenes = lazy(() => import('./caracteristicas/ordenes/PaginaOrdenes'));
+const PaginaOrden = lazy(() => import('./caracteristicas/ordenes/PaginaOrden'));
+const PaginaCompra =lazy(() => import('./caracteristicas/ordenes/PaginaCompra'));
 const PaginaEntrar =lazy(() => import('./caracteristicas/sesion/PaginaEntrar'));
 const PaginaRegistro = lazy(() => import('./caracteristicas/sesion/PaginaRegistro'));
 const NoEncontrado = lazy(() => import('./compartido/paginas/NoEncontrado'));
@@ -29,6 +31,8 @@ export default function App() {
         <Route element={<RutaProtegida />}>
           <Route path="carrito" element={<PaginaCarrito />} />
           <Route path="compra" element={<PaginaCompra />} />
+          <Route path="ordenes" element={<PaginaOrdenes />} />
+          <Route path="ordenes/:id" element={<PaginaOrden />} />
         </Route>
 
         {/* cualquier dirección que no coincide con nada */}
