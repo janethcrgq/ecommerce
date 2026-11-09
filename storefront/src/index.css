@@ -117,6 +117,24 @@ p {
 }
 
 
+/* ---------- aviso de servicio sin conexión ---------- */
+
+.sin-conexion {
+  color: #fff;
+  background: var(--color-error);
+}
+
+.sin-conexion__contenido {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding-top: var(--espacio-3);
+  padding-bottom: var(--espacio-3);
+}
+
+
 /* ---------- encabezado ---------- */
 
 .encabezado {

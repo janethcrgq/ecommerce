@@ -4,6 +4,7 @@
 import { Suspense, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { Cargando } from '../componentes/Cargando';
+import { AvisoSinConexion } from './AvisoSinConexion';
 import { Encabezado } from './Encabezado';
 import { PiePagina } from './PiePagina';
 
@@ -17,6 +18,7 @@ export function Layout() {
 
   return (
     <div className="disposicion">
+      <AvisoSinConexion />
       <Encabezado />
       <main className="disposicion__contenido">
         {/* mientras se baja el código de la pantalla se ve Cargando, sin mover el encabezado ni el pie */}
