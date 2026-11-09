@@ -3,11 +3,13 @@
 // la protección de verdad la hace el servicio.
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router';
+import { useCarrito } from '../../caracteristicas/carrito/CarritoContext';
 import { useSesion } from '../../caracteristicas/sesion/SesionContext';
 import { NOMBRE_TIENDA } from '../marca';
 
 export function Encabezado() {
   const { usuario, cerrarSesion } = useSesion();
+  const { cantidadPiezas } = useCarrito();
 
   // en el celular el menú se abre y se cierra con un botón
   const [menuAbierto, setMenuAbierto] = useState(false);
@@ -40,7 +42,14 @@ export function Encabezado() {
 
           {esCliente && (
             <>
-              <NavLink to="/carrito" onClick={cerrarMenu}>Carrito</NavLink>
+              <NavLink to="/carrito" onClick={cerrarMenu}>
+                Carrito
+                {cantidadPiezas > 0 && (
+                  <span className="encabezado__contador" aria-label={`${cantidadPiezas} piezas`}>
+                    {cantidadPiezas}
+                  </span>
+                )}
+              </NavLink>
               <NavLink to="/ordenes" onClick={cerrarMenu}>Mis órdenes</NavLink>
             </>
           )}

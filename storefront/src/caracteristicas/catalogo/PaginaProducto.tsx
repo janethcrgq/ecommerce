@@ -10,7 +10,7 @@ import { formatoMoneda, urlImagen } from '../../compartido/formato';
 import { useDatos } from '../../compartido/hooks/useDatos';
 import { useTitulo } from '../../compartido/hooks/useTitulo';
 import NoEncontrado from '../../compartido/paginas/NoEncontrado';
-import { agregarAlCarrito } from '../carrito/carritoServicio';
+import { useCarrito } from '../carrito/CarritoContext';
 import { useSesion } from '../sesion/SesionContext';
 import { obtenerProducto } from './catalogoServicio';
 import { COLORES } from './colores';
@@ -74,6 +74,7 @@ function DetalleProducto({ idProducto }: { idProducto: number }) {
 // elegir color, talla y cantidad, y agregar al carrito
 function Opciones({ variantes }: { variantes: Variante[] }) {
   const { usuario } = useSesion();
+  const { agregar } = useCarrito();
   const { mostrarAviso } = useAvisos();
   const navegar = useNavigate();
   const ubicacion = useLocation();
@@ -129,7 +130,7 @@ function Opciones({ variantes }: { variantes: Variante[] }) {
 
     setAgregando(true);
     try {
-      await agregarAlCarrito(varianteElegida.id, cantidad);
+      await agregar(varianteElegida.id, cantidad);
       mostrarAviso('Agregado al carrito.', 'exito');
     } catch (e) {
       // por ejemplo, si no alcanzan las piezas: el mensaje ya viene en lenguaje normal
