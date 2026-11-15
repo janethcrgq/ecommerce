@@ -9,3 +9,6 @@ src/generated/prisma/
 
 *.log
 .DS_Store
+
+# archivos subidos durante la ejecución
+uploads/

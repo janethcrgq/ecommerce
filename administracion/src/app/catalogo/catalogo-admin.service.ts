@@ -66,9 +66,21 @@ export interface DatosCategoria {
   descripcion: string;
 }
 
+
+export interface ImagenSubida {
+  imagen: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CatalogoAdminService {
   private readonly api = inject(ApiService);
+
+
+  subirImagen(archivo: File): Observable<ImagenSubida> {
+    const datos = new FormData();
+    datos.append('archivo', archivo);
+    return this.api.post<ImagenSubida>('/archivos/productos', datos);
+  }
 
   listarProductos(filtros: FiltrosProducto = {}): Observable<ProductoAdmin[]> {
     return this.api.get<ProductoAdmin[]>('/admin/productos', filtros);

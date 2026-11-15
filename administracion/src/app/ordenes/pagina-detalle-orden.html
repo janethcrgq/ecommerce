@@ -1,0 +1,168 @@
+<section class="encabezado-pagina">
+  <div>
+    <p class="sobrelinea">Órdenes</p>
+    <h1>Detalle de orden</h1>
+    <p>Revisa los artículos, el pago y el seguimiento del envío.</p>
+  </div>
+  <a class="boton boton-secundario enlace-boton" routerLink="/ordenes">Volver a órdenes</a>
+</section>
+
+@if (cargando()) {
+  <app-cargando texto="Cargando orden..." />
+} @else if (noEncontrado()) {
+  <app-recurso-no-encontrado
+    titulo="Orden no encontrada"
+    mensaje="La orden que intentaste consultar no existe."
+    volverA="/ordenes"
+    textoVolver="Volver a órdenes"
+  />
+} @else if (detalle(); as dato) {
+  @if (error()) {
+    <p class="alerta alerta-error" role="alert">{{ error() }}</p>
+  }
+  @if (mensaje()) {
+    <p class="alerta alerta-exito">{{ mensaje() }}</p>
+  }
+
+  <section class="panel resumen-orden">
+    <div>
+      <small>Orden</small>
+      <strong>#{{ dato.orden.id }}</strong>
+    </div>
+    <div>
+      <small>Cliente</small>
+      <strong>#{{ dato.orden.usuarioId }}</strong>
+    </div>
+    <div>
+      <small>Fecha</small>
+      <strong>{{ formatoFecha(dato.orden.fecha) }}</strong>
+    </div>
+    <div>
+      <small>Total</small>
+      <strong>{{ formatoMoneda(dato.orden.total) }}</strong>
+    </div>
+    <div>
+      <small>Estado</small>
+      <span class="estado" [attr.data-estado]="dato.orden.estado">{{ etiquetaEstado(dato.orden.estado) }}</span>
+    </div>
+  </section>
+
+  <div class="rejilla-detalle">
+    <section class="panel articulos-panel">
+      <div class="panel-encabezado">
+        <div>
+          <h2>Artículos</h2>
+          <p>{{ dato.detalles.length }} partida(s) en la orden.</p>
+        </div>
+      </div>
+
+      <div class="lista-articulos">
+        @for (item of dato.detalles; track item.id) {
+          <article class="articulo">
+            <img [src]="urlImagen(item.imagen)" [alt]="item.nombre" />
+            <div class="articulo-info">
+              <strong>{{ item.nombre }}</strong>
+              <span>{{ item.talla }} · {{ item.color }}</span>
+              <span>{{ item.cantidad }} × {{ formatoMoneda(item.precioUnitario) }}</span>
+            </div>
+            <strong>{{ formatoMoneda(item.subtotal) }}</strong>
+          </article>
+        }
+      </div>
+    </section>
+
+    <div class="columna-operacion">
+      <section class="panel">
+        <div class="panel-encabezado">
+          <div>
+            <h2>Pago</h2>
+            <p>Confirma o corrige el estado registrado.</p>
+          </div>
+        </div>
+
+        @if (dato.pago) {
+          <dl class="datos">
+            <div><dt>Método</dt><dd>{{ dato.pago.metodo }}</dd></div>
+            <div><dt>Monto</dt><dd>{{ formatoMoneda(dato.pago.monto) }}</dd></div>
+          </dl>
+
+          <form class="form-inline" [formGroup]="pagoForm" (ngSubmit)="prepararCambioPago()">
+            <label>
+              <span>Estado del pago</span>
+              <select formControlName="estado">
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="PAGADO">Pagado</option>
+                <option value="FALLIDO">Fallido</option>
+              </select>
+            </label>
+            <button class="boton boton-secundario" type="submit">Actualizar pago</button>
+          </form>
+        } @else {
+          <p class="texto-suave">No hay información de pago para esta orden.</p>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel-encabezado">
+          <div>
+            <h2>Envío</h2>
+            <p>Guía y paquetería asignadas a la compra.</p>
+          </div>
+        </div>
+
+        @if (dato.envio) {
+          <dl class="datos">
+            <div><dt>Paquetería</dt><dd>{{ dato.envio.nombrePaqueteria }}</dd></div>
+            <div><dt>Guía</dt><dd>{{ dato.envio.numeroGuia }}</dd></div>
+            <div><dt>Fecha de envío</dt><dd>{{ formatoFecha(dato.envio.fechaEnvio) }}</dd></div>
+            <div><dt>Entrega</dt><dd>{{ formatoFecha(dato.envio.fechaEntrega) }}</dd></div>
+          </dl>
+        } @else if (dato.orden.estado === 'PROCESANDO') {
+          <form class="form-envio" [formGroup]="envioForm" (ngSubmit)="registrarEnvio()">
+            <label>
+              <span>Paquetería</span>
+              <input formControlName="nombrePaqueteria" maxlength="100" placeholder="Ej. Estafeta" />
+              @if (envioForm.controls.nombrePaqueteria.invalid && envioForm.controls.nombrePaqueteria.touched) {
+                <small class="campo-error">Escribe la paquetería.</small>
+              }
+            </label>
+            <label>
+              <span>Número de guía</span>
+              <input formControlName="numeroGuia" maxlength="100" placeholder="Ej. GUIA-123456" />
+              @if (envioForm.controls.numeroGuia.invalid && envioForm.controls.numeroGuia.touched) {
+                <small class="campo-error">Escribe el número de guía.</small>
+              }
+            </label>
+            <button class="boton boton-primario" type="submit" [disabled]="procesando()">Registrar envío</button>
+          </form>
+        } @else {
+          <p class="texto-suave">La guía se registra cuando la orden está en procesamiento.</p>
+        }
+      </section>
+    </div>
+  </div>
+
+  <section class="panel flujo-panel">
+    <div>
+      <h2>Avance de la orden</h2>
+      <p>Secuencia: Pendiente → Procesando → Enviado → Entregado.</p>
+    </div>
+    @if (siguienteEstado(); as siguiente) {
+      <button class="boton boton-primario" type="button" (click)="prepararCambioEstado()" [disabled]="procesando()">
+        Avanzar a {{ etiquetaEstado(siguiente) }}
+      </button>
+    } @else {
+      <span class="estado estado-final">Orden completada</span>
+    }
+  </section>
+
+  <app-confirmacion
+    [abierto]="accionConfirmar() !== null"
+    [titulo]="tituloConfirmacion()"
+    [mensaje]="textoConfirmacion()"
+    textoConfirmar="Confirmar"
+    [procesando]="procesando()"
+    (confirmar)="confirmarAccion()"
+    (cancelar)="cancelarConfirmacion()"
+  />
+}

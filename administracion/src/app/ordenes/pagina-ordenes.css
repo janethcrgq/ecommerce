@@ -1,0 +1,25 @@
+:host { display: block; }
+.encabezado-pagina { margin-bottom: 1rem; }
+.encabezado-pagina h1 { margin: .15rem 0 .3rem; font-size: 2rem; }
+.encabezado-pagina p { margin: 0; color: var(--texto-suave); }
+.sobrelinea { text-transform: uppercase; font-size: .72rem; font-weight: 800; letter-spacing: .08em; color: var(--morado) !important; }
+.panel { background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 1rem; }
+.filtros { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)) auto; gap: .75rem; align-items: end; margin-bottom: 1rem; }
+.filtros label { display: grid; gap: .35rem; }
+.filtros label span { font-size: .78rem; font-weight: 750; }
+.acciones-filtros { display: flex; gap: .5rem; }
+.panel-encabezado h2 { margin: 0; font-size: 1rem; }
+.panel-encabezado p { margin: .25rem 0 .8rem; color: var(--texto-suave); font-size: .86rem; }
+.tabla-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th { text-align: left; color: var(--texto-suave); text-transform: uppercase; font-size: .68rem; letter-spacing: .05em; padding: .7rem .55rem; }
+td { border-top: 1px solid var(--borde); padding: .85rem .55rem; }
+td a { color: var(--morado); font-weight: 750; text-decoration: none; }
+.estado { display: inline-flex; padding: .28rem .5rem; border-radius: 999px; background: #eef1f6; font-size: .72rem; font-weight: 800; }
+.estado[data-estado="PENDIENTE"] { background: #fff4de; color: #8a5a00; }
+.estado[data-estado="PROCESANDO"] { background: #eee9ff; color: #5b36b3; }
+.estado[data-estado="ENVIADO"] { background: #e8f3ff; color: #175e9c; }
+.estado[data-estado="ENTREGADO"] { background: #e9f8f0; color: #177a4e; }
+.estado-vacio { min-height: 180px; display: grid; place-items: center; text-align: center; color: var(--texto-suave); gap: .3rem; }
+@media (max-width: 1100px) { .filtros { grid-template-columns: repeat(2,minmax(0,1fr)); } .acciones-filtros { grid-column: 1 / -1; } }
+@media (max-width: 650px) { .filtros { grid-template-columns: 1fr; } .acciones-filtros { grid-column: auto; } }

@@ -27,6 +27,10 @@ import {
 } from './catalogo/api/productos.controller';
 
 import {
+    ArchivosController,
+} from './catalogo/api/archivos.controller';
+
+import {
     DashboardController,
 } from './dashboard/api/dashboard.controller';
 
@@ -72,6 +76,7 @@ import {
         AppController,
         ProductosController,
         ProductosAdminController,
+        ArchivosController,
         CategoriasController,
         CarritoController,
         DireccionesController,

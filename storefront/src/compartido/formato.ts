@@ -1,5 +1,7 @@
 // funciones para mostrar dinero, fechas e imágenes de la misma forma en toda la tienda.
 
+import { URL_API } from '../api/config';
+
 const moneda = new Intl.NumberFormat('es-MX', {
   style: 'currency',
   currency: 'MXN',
@@ -17,8 +19,17 @@ export function formatoFecha(fecha: string): string {
   });
 }
 
-// las fotos de los productos están en la carpeta public/productos del portal.
-// la base de datos solo guarda el nombre del archivo.
 export function urlImagen(imagen: string): string {
-  return `/productos/${imagen}`;
+  if (!imagen) return '';
+  if (/^https?:\/\//i.test(imagen)) return imagen;
+
+  // Las imágenes nuevas que sube el administrador las sirve el backend.
+  if (imagen.startsWith('/uploads/')) {
+    return `${URL_API}${imagen}`;
+  }
+
+  // Las imágenes de la semilla siguen viviendo en public/productos.
+  const limpia = imagen.replace(/^\/+/, '');
+  const nombre = limpia.split('/').pop() ?? limpia;
+  return `/productos/${nombre}`;
 }

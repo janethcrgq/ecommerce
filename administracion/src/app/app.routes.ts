@@ -9,6 +9,9 @@ import { FormularioProducto } from './catalogo/formulario-producto';
 import { PaginaDetalleProducto } from './catalogo/pagina-detalle-producto';
 import { PaginaCategorias } from './catalogo/pagina-categorias';
 import { cambiosPendientesGuard } from './compartido/cambios-pendientes.guard';
+import { PaginaInventario } from './inventario/pagina-inventario';
+import { PaginaOrdenes } from './ordenes/pagina-ordenes';
+import { PaginaDetalleOrden } from './ordenes/pagina-detalle-orden';
 
 export const routes: Routes = [
   {
@@ -46,6 +49,19 @@ export const routes: Routes = [
         path: 'categorias',
         component: PaginaCategorias,
         canDeactivate: [cambiosPendientesGuard],
+      },
+
+      {
+        path: 'inventario',
+        component: PaginaInventario,
+      },
+      {
+        path: 'ordenes',
+        component: PaginaOrdenes,
+      },
+      {
+        path: 'ordenes/:id',
+        component: PaginaDetalleOrden,
       },
       {
         path: '',

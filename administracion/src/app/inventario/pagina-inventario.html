@@ -1,0 +1,168 @@
+<section class="encabezado-pagina">
+  <div>
+    <p class="sobrelinea">Inventario</p>
+    <h1>Existencias y ajustes</h1>
+    <p>Consulta el stock actual y registra entradas, mermas o correcciones.</p>
+  </div>
+  <label class="filtro-check">
+    <input type="checkbox" [checked]="soloStockBajo()" (change)="cambiarFiltro($event)" />
+    <span>Mostrar solo stock bajo</span>
+  </label>
+</section>
+
+@if (errorCarga()) {
+  <app-mensaje-error [mensaje]="errorCarga()" (reintentar)="cargarTodo()" />
+}
+
+@if (errorOperacion()) {
+  <p class="alerta alerta-error" role="alert">{{ errorOperacion() }}</p>
+}
+@if (mensaje()) {
+  <p class="alerta alerta-exito">{{ mensaje() }}</p>
+}
+
+<div class="rejilla-principal">
+  <section class="panel inventario-panel">
+    <div class="panel-encabezado">
+      <div>
+        <h2>Stock por variante</h2>
+        <p>{{ variantes().length }} variante(s) visible(s).</p>
+      </div>
+    </div>
+
+    @if (cargando()) {
+      <app-cargando texto="Cargando inventario..." />
+    } @else if (!errorCarga() && variantes().length === 0) {
+      <div class="estado-vacio">
+        <strong>No hay variantes para mostrar.</strong>
+        <span>{{ soloStockBajo() ? 'No hay existencias en nivel de alerta.' : 'Agrega variantes desde el detalle de un producto.' }}</span>
+      </div>
+    } @else if (!errorCarga()) {
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Variante</th>
+              <th>Stock</th>
+              <th>Mínimo</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (variante of variantes(); track variante.id) {
+              <tr>
+                <td>
+                  <strong>{{ nombreProducto(variante.productoId) }}</strong>
+                  <small>#{{ variante.productoId }}</small>
+                </td>
+                <td>{{ variante.talla }} · {{ variante.color }}</td>
+                <td [class.stock-alerta]="variante.stock <= variante.stockMinimo">{{ variante.stock }}</td>
+                <td>{{ variante.stockMinimo }}</td>
+                <td>
+                  <span class="estado" [class.estado-bajo]="variante.stock <= variante.stockMinimo">
+                    {{ variante.stock <= variante.stockMinimo ? 'Stock bajo' : 'Disponible' }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="panel ajuste-panel">
+    <h2>Registrar ajuste</h2>
+    <p class="texto-suave">El movimiento queda guardado con fecha, motivo y administrador.</p>
+
+    <form [formGroup]="formulario" (ngSubmit)="prepararAjuste()" novalidate>
+      <label class="campo">
+        <span>Variante</span>
+        <select formControlName="varianteId">
+          <option [ngValue]="null">Selecciona una variante</option>
+          @for (variante of todasVariantes(); track variante.id) {
+            <option [ngValue]="variante.id">
+              {{ descripcionVariante(variante) }} · stock {{ variante.stock }}
+            </option>
+          }
+        </select>
+        @if (mostrarError('varianteId')) {
+          <small class="campo-error">Selecciona una variante.</small>
+        }
+      </label>
+
+      <label class="campo">
+        <span>Cantidad del ajuste</span>
+        <input type="number" step="1" formControlName="cantidad" placeholder="Ej. 5 o -2" />
+        <small class="ayuda">Usa un número positivo para sumar y negativo para restar.</small>
+        @if (mostrarError('cantidad')) {
+          <small class="campo-error">La cantidad es obligatoria y no puede ser cero.</small>
+        }
+      </label>
+
+      <label class="campo">
+        <span>Motivo</span>
+        <select formControlName="motivo">
+          <option value="ENTRADA">Entrada</option>
+          <option value="MERMA">Merma</option>
+          <option value="CORRECCION">Corrección</option>
+        </select>
+      </label>
+
+      <button class="boton boton-primario" type="submit">Registrar ajuste</button>
+    </form>
+  </section>
+</div>
+
+<section class="panel historial-panel">
+  <div class="panel-encabezado">
+    <div>
+      <h2>Historial de ajustes</h2>
+      <p>Movimientos registrados en el inventario.</p>
+    </div>
+  </div>
+
+  @if (cargandoAjustes()) {
+    <app-cargando texto="Cargando historial..." />
+  } @else if (ajustes().length === 0) {
+    <div class="estado-vacio"><strong>Todavía no hay ajustes registrados.</strong></div>
+  } @else {
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Variante</th>
+            <th>Motivo</th>
+            <th>Cantidad</th>
+            <th>Administrador</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ajuste of ajustes(); track ajuste.id) {
+            <tr>
+              <td>{{ formatoFecha(ajuste.fecha) }}</td>
+              <td>{{ nombreVariante(ajuste.varianteId) }}</td>
+              <td><span class="estado">{{ ajuste.motivo }}</span></td>
+              <td [class.cantidad-negativa]="ajuste.cantidad < 0" [class.cantidad-positiva]="ajuste.cantidad > 0">
+                {{ ajuste.cantidad > 0 ? '+' : '' }}{{ ajuste.cantidad }}
+              </td>
+              <td>#{{ ajuste.usuarioId }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+<app-confirmacion
+  [abierto]="confirmando()"
+  titulo="Confirmar ajuste de inventario"
+  [mensaje]="textoConfirmacion()"
+  textoConfirmar="Registrar ajuste"
+  [procesando]="procesando()"
+  (confirmar)="confirmarAjuste()"
+  (cancelar)="cancelarConfirmacion()"
+/>

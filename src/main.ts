@@ -14,6 +14,12 @@ import {
 } from '@nestjs/core';
 
 import {
+    NestExpressApplication,
+} from '@nestjs/platform-express';
+
+import { join } from 'path';
+
+import {
     DocumentBuilder,
     SwaggerModule,
 } from '@nestjs/swagger';
@@ -32,7 +38,7 @@ import {
 async function bootstrap() {
 
     const app =
-        await NestFactory.create(
+        await NestFactory.create<NestExpressApplication>(
             AppModule,
         );
 
@@ -70,6 +76,14 @@ async function bootstrap() {
     app.enableCors({
         origin: origenes,
     });
+
+
+    // Las imágenes que sube el administrador quedan guardadas en el servicio.
+    // El portal y el panel pueden consultarlas con /uploads/productos/...
+    app.useStaticAssets(
+        join(process.cwd(), 'uploads'),
+        { prefix: '/uploads/' },
+    );
 
 
     const config =

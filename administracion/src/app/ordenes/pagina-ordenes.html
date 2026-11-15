@@ -1,0 +1,89 @@
+<section class="encabezado-pagina">
+  <div>
+    <p class="sobrelinea">Operación</p>
+    <h1>Órdenes</h1>
+    <p>Consulta las compras y da seguimiento a su procesamiento, pago y envío.</p>
+  </div>
+</section>
+
+<form class="panel filtros" [formGroup]="filtros" (ngSubmit)="cargar()">
+  <label>
+    <span>Estado</span>
+    <select formControlName="estado">
+      <option value="">Todos</option>
+      <option value="PENDIENTE">Pendiente</option>
+      <option value="PROCESANDO">Procesando</option>
+      <option value="ENVIADO">Enviado</option>
+      <option value="ENTREGADO">Entregado</option>
+    </select>
+  </label>
+
+  <label>
+    <span>Desde</span>
+    <input type="date" formControlName="fechaDesde" />
+  </label>
+
+  <label>
+    <span>Hasta</span>
+    <input type="date" formControlName="fechaHasta" />
+  </label>
+
+  <label>
+    <span>Cliente (ID)</span>
+    <input type="number" min="1" step="1" formControlName="usuarioId" placeholder="Ej. 2" />
+  </label>
+
+  <div class="acciones-filtros">
+    <button class="boton boton-primario" type="submit">Aplicar</button>
+    <button class="boton boton-secundario" type="button" (click)="limpiar()">Limpiar</button>
+  </div>
+</form>
+
+@if (error()) {
+  <app-mensaje-error [mensaje]="error()" (reintentar)="cargar()" />
+} @else if (cargando()) {
+  <app-cargando texto="Cargando órdenes..." />
+} @else {
+  <section class="panel listado">
+    <div class="panel-encabezado">
+      <div>
+        <h2>Órdenes registradas</h2>
+        <p>{{ ordenes().length }} orden(es) con los filtros actuales.</p>
+      </div>
+    </div>
+
+    @if (ordenes().length === 0) {
+      <div class="estado-vacio">
+        <strong>No hay órdenes para mostrar.</strong>
+        <span>Prueba con otros filtros.</span>
+      </div>
+    } @else {
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Orden</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (orden of ordenes(); track orden.id) {
+              <tr>
+                <td><strong>#{{ orden.id }}</strong></td>
+                <td>{{ formatoFecha(orden.fecha) }}</td>
+                <td>Cliente #{{ orden.usuarioId }}</td>
+                <td>{{ formatoMoneda(orden.total) }}</td>
+                <td><span class="estado" [attr.data-estado]="orden.estado">{{ orden.estado }}</span></td>
+                <td><a [routerLink]="['/ordenes', orden.id]">Ver detalle</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

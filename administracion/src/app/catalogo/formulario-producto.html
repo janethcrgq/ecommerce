@@ -60,14 +60,44 @@
         }
       </label>
 
-      <label class="campo campo-ancho">
-        <span>Imagen</span>
-        <input formControlName="imagen" maxlength="255" placeholder="/img/producto.jpg" />
-        <small class="ayuda">Ruta de la imagen que será mostrada en el portal del cliente.</small>
-        @if (mostrarError('imagen')) {
-          <small class="campo-error">La imagen es obligatoria.</small>
+      <div class="campo campo-ancho">
+        <span>Imagen del producto</span>
+        <div class="subida-imagen">
+          <div class="previsualizacion-imagen">
+            @if (previsualizacion()) {
+              <img [src]="previsualizacion()" alt="Previsualización del producto" />
+            } @else {
+              <span>Sin imagen</span>
+            }
+          </div>
+
+          <div class="controles-imagen">
+            <label class="boton boton-secundario selector-archivo">
+              {{ editando ? 'Cambiar imagen' : 'Añadir imagen' }}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="seleccionarImagen($event)"
+              />
+            </label>
+
+            @if (archivoSeleccionado()) {
+              <button class="boton boton-secundario" type="button" (click)="quitarImagenSeleccionada()">
+                Quitar selección
+              </button>
+              <small>Seleccionada: {{ nombreArchivo() }}</small>
+            } @else if (editando) {
+              <small>Si no eliges otra imagen, se conserva la actual.</small>
+            } @else {
+              <small>JPG, PNG o WEBP. Máximo 5 MB.</small>
+            }
+          </div>
+        </div>
+
+        @if (errorImagen()) {
+          <small class="campo-error">{{ errorImagen() }}</small>
         }
-      </label>
+      </div>
 
       <label class="check campo-ancho">
         <input type="checkbox" formControlName="activo" />
