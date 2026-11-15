@@ -1,0 +1,29 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f6f7fb;
+  font-synthesis: none;
+  --oscuro: #171b27;
+  --morado: #6842c2;
+  --morado-hover: #5735aa;
+  --fondo: #f6f7fb;
+  --borde: #e2e5ec;
+  --texto-suave: #667085;
+  --sombra: 0 14px 35px rgba(23, 32, 51, .08);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--fondo); }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, input, select, textarea { font: inherit; }
+input, select, textarea { border: 1px solid #ccd2dc; border-radius: 8px; padding: .68rem .75rem; background: #fff; color: #172033; outline: none; }
+input:focus, select:focus, textarea:focus { border-color: #8d72d8; box-shadow: 0 0 0 3px rgba(104, 66, 194, .12); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(104,66,194,.28); outline-offset: 2px; }
+.boton { border: 0; border-radius: 8px; padding: .68rem .9rem; font-weight: 700; cursor: pointer; }
+.boton:disabled { opacity: .55; cursor: not-allowed; }
+.boton-primario { background: var(--morado); color: #fff; }
+.boton-primario:hover:not(:disabled) { background: var(--morado-hover); }
+.boton-secundario { background: #fff; color: #344054; border: 1px solid #d0d5dd; }
+.campo-error { color: #b42318; font-size: .8rem; font-weight: 600; }
+.alerta { padding: .75rem .85rem; border-radius: 8px; font-size: .88rem; }
+.alerta-error { color: #912018; background: #fff0ee; border: 1px solid #fac5bf; }

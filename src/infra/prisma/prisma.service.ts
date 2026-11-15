@@ -48,6 +48,9 @@ export class PrismaService
 
                 connectionLimit:
                     5,
+
+                allowPublicKeyRetrieval:
+                    true,
             });
 
 

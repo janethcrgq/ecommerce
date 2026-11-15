@@ -1,0 +1,20 @@
+:host { display: block; min-height: 100vh; }
+.admin-shell { min-height: 100vh; display: grid; grid-template-columns: 250px 1fr; background: var(--fondo); }
+.barra-lateral { position: sticky; top: 0; height: 100vh; background: var(--oscuro); color: #fff; padding: 1.25rem; display: flex; flex-direction: column; gap: 2rem; }
+.logo-admin { display: flex; align-items: center; gap: .8rem; color: #fff; text-decoration: none; }
+.logo-admin span:last-child { display: grid; }
+.logo-admin small { color: #aeb5c5; margin-top: .15rem; }
+.logo-cuadro { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--morado); font-weight: 900; }
+nav { display: grid; gap: .35rem; }
+nav a { color: #d9deea; text-decoration: none; padding: .75rem .85rem; border-radius: 9px; font-weight: 650; }
+nav a:hover, nav a.activo { color: #fff; background: #2b3140; }
+.usuario-lateral { margin-top: auto; border-top: 1px solid #343b4b; padding-top: 1rem; display: grid; gap: .8rem; }
+.usuario-lateral > div { display: grid; gap: .2rem; }
+.usuario-lateral small { color: #aeb5c5; overflow-wrap: anywhere; }
+.boton-salir { color: #fff; background: transparent; border: 1px solid #51596d; border-radius: 8px; padding: .65rem .8rem; text-align: left; cursor: pointer; }
+.barra-superior { min-height: 72px; background: #fff; border-bottom: 1px solid var(--borde); padding: .9rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.barra-superior > div { display: grid; gap: .1rem; }
+.etiqueta { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--texto-suave); font-weight: 700; }
+.estado-servicio { font-size: .82rem; color: #177a4e; background: #e9f8f0; border: 1px solid #bde8cf; padding: .38rem .65rem; border-radius: 999px; }
+.contenido-principal { padding: 1.5rem; }
+@media (max-width: 850px) { .admin-shell { grid-template-columns: 1fr; } .barra-lateral { position: static; height: auto; } .barra-lateral nav { grid-template-columns: repeat(2, minmax(0, 1fr)); } .usuario-lateral { margin-top: 0; } }

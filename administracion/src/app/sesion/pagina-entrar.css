@@ -1,0 +1,16 @@
+:host { display: block; min-height: 100vh; }
+.login-pagina { min-height: 100vh; display: grid; grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.1fr); background: var(--fondo); }
+.login-marca { background: var(--oscuro); color: #fff; padding: clamp(3rem, 8vw, 7rem); display: flex; flex-direction: column; justify-content: center; }
+.marca { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.35rem; }
+.login-marca > span { color: #c8b7ff; text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; font-weight: 700; }
+.login-marca h1 { font-size: clamp(2.3rem, 5vw, 4.6rem); line-height: .98; margin: 1.2rem 0; max-width: 8ch; }
+.login-marca p { max-width: 34rem; color: #d4d8e3; font-size: 1.05rem; }
+.login-panel { display: grid; place-items: center; padding: 2rem; }
+.login-tarjeta { width: min(430px, 100%); background: #fff; border: 1px solid var(--borde); border-radius: 16px; padding: 2rem; box-shadow: var(--sombra); display: grid; gap: 1.1rem; }
+.login-tarjeta h2 { margin: .15rem 0 .35rem; font-size: 1.7rem; }
+.login-tarjeta label { display: grid; gap: .45rem; font-weight: 650; }
+.login-tarjeta input { width: 100%; }
+.etiqueta-superior { margin: 0; color: var(--morado); font-weight: 800; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+.texto-secundario, .ayuda-login { color: var(--texto-suave); margin: 0; }
+.ayuda-login { text-align: center; font-size: .86rem; }
+@media (max-width: 800px) { .login-pagina { grid-template-columns: 1fr; } .login-marca { padding: 2.5rem 2rem; } .login-marca h1 { max-width: none; font-size: 2.4rem; } }

@@ -1,0 +1,44 @@
+<div class="login-pagina">
+  <section class="login-marca">
+    <div class="marca">Tienda en Línea</div>
+    <span>Gestión interna</span>
+    <h1>Gestión del negocio</h1>
+    <p>Consulta y administra la operación de la tienda desde un solo lugar.</p>
+  </section>
+
+  <main class="login-panel">
+    <form class="login-tarjeta" [formGroup]="formulario" (ngSubmit)="entrar()">
+      <div>
+        <p class="etiqueta-superior">Acceso del personal</p>
+        <h2>Iniciar sesión</h2>
+        <p class="texto-secundario">Ingresa con tu correo y contraseña.</p>
+      </div>
+
+      @if (error()) {
+        <div class="alerta alerta-error" role="alert">{{ error() }}</div>
+      }
+
+      <label>
+        <span>Correo</span>
+        <input type="email" formControlName="correo" autocomplete="username" />
+        @if (formulario.controls.correo.touched && formulario.controls.correo.hasError('required')) {
+          <small class="campo-error">El correo es obligatorio.</small>
+        } @else if (formulario.controls.correo.touched && formulario.controls.correo.hasError('email')) {
+          <small class="campo-error">Escribe un correo válido.</small>
+        }
+      </label>
+
+      <label>
+        <span>Contraseña</span>
+        <input type="password" formControlName="contrasenia" autocomplete="current-password" />
+        @if (formulario.controls.contrasenia.touched && formulario.controls.contrasenia.hasError('required')) {
+          <small class="campo-error">La contraseña es obligatoria.</small>
+        }
+      </label>
+
+      <button class="boton boton-primario" type="submit" [disabled]="enviando()">
+        {{ enviando() ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+  </main>
+</div>

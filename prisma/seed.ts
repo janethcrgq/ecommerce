@@ -22,6 +22,7 @@ const adapter = new PrismaMariaDb({
     password: variables['DATABASE_PASSWORD'] ?? '',
     database: variables['DATABASE_NAME'] ?? 'tienda_en_linea',
     connectionLimit: 5,
+    allowPublicKeyRetrieval: true,
 });
 
 const prisma = new PrismaClient({

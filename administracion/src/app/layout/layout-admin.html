@@ -1,0 +1,37 @@
+<div class="admin-shell">
+  <aside class="barra-lateral">
+    <a class="logo-admin" routerLink="/dashboard">
+      <span class="logo-cuadro">TL</span>
+      <span>
+        <strong>Tienda en Línea</strong>
+        <small>Administración</small>
+      </span>
+    </a>
+
+    <nav aria-label="Navegación administrativa">
+      <a routerLink="/dashboard" routerLinkActive="activo">Resumen</a>
+    </nav>
+
+    <div class="usuario-lateral">
+      <div>
+        <strong>{{ sesion.usuario()?.nombre }}</strong>
+        <small>{{ sesion.usuario()?.correo }}</small>
+      </div>
+      <button class="boton-salir" type="button" (click)="salir()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <div class="admin-contenido">
+    <header class="barra-superior">
+      <div>
+        <span class="etiqueta">Panel administrativo</span>
+        <strong>Operación de la tienda</strong>
+      </div>
+      <span class="estado-servicio">Servicio central conectado</span>
+    </header>
+
+    <main class="contenido-principal">
+      <router-outlet />
+    </main>
+  </div>
+</div>

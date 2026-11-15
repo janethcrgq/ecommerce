@@ -1,0 +1,122 @@
+<section class="encabezado-pagina">
+  <div>
+    <p class="sobrelinea">Resumen</p>
+    <h1>Estado de la tienda</h1>
+    <p>Ventas, órdenes e inventario que requieren atención.</p>
+  </div>
+
+  <div class="filtro-periodo" aria-label="Periodo del resumen">
+    <label>
+      <span>Desde</span>
+      <input type="date" [value]="desde()" (input)="actualizarDesde($event)" />
+    </label>
+    <label>
+      <span>Hasta</span>
+      <input type="date" [value]="hasta()" (input)="actualizarHasta($event)" />
+    </label>
+    <button class="boton boton-primario" type="button" (click)="cargar()">Aplicar</button>
+    <button class="boton boton-secundario" type="button" (click)="limpiarPeriodo()">Limpiar</button>
+  </div>
+</section>
+
+@if (cargando()) {
+  <app-cargando texto="Cargando resumen..." />
+} @else if (error()) {
+  <app-mensaje-error [mensaje]="error()" (reintentar)="cargar()" />
+} @else if (sinActividad()) {
+  <section class="estado-vacio">
+    <h2>Sin actividad en el periodo</h2>
+    <p>No hay ventas, órdenes de hoy ni alertas de stock para mostrar.</p>
+  </section>
+} @else if (datos(); as resumen) {
+  <section class="metricas">
+    <article class="metrica">
+      <span>Órdenes de hoy</span>
+      <strong>{{ resumen.ordenesHoy }}</strong>
+      <small>Desde las 00:00</small>
+    </article>
+
+    <article class="metrica">
+      <span>Ventas del periodo</span>
+      <strong>{{ resumen.ventasTotales | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+      <small>{{ resumen.desde | date:'dd/MM/yyyy' }} — {{ resumen.hasta | date:'dd/MM/yyyy' }}</small>
+    </article>
+
+    <article class="metrica">
+      <span>Variantes con stock bajo</span>
+      <strong>{{ resumen.variantesStockBajo.length }}</strong>
+      <small>En o debajo del mínimo</small>
+    </article>
+
+    <article class="metrica">
+      <span>Productos con ventas</span>
+      <strong>{{ resumen.masVendidos.length }}</strong>
+      <small>Top del periodo seleccionado</small>
+    </article>
+  </section>
+
+  <section class="tableros">
+    <article class="panel">
+      <div class="panel-titulo">
+        <div>
+          <h2>Stock bajo</h2>
+          <p>Variantes que conviene reponer.</p>
+        </div>
+        <span class="contador">{{ resumen.variantesStockBajo.length }}</span>
+      </div>
+
+      @if (resumen.variantesStockBajo.length === 0) {
+        <p class="mensaje-lista-vacia">No hay variantes con stock bajo.</p>
+      } @else {
+        <div class="tabla-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Variante</th>
+                <th>Stock</th>
+                <th>Mínimo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (variante of resumen.variantesStockBajo; track variante.id) {
+                <tr>
+                  <td>Producto #{{ variante.productoId }}</td>
+                  <td>{{ variante.talla }} · {{ variante.color }}</td>
+                  <td><strong class="dato-alerta">{{ variante.stock }}</strong></td>
+                  <td>{{ variante.stockMinimo }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+
+    <article class="panel">
+      <div class="panel-titulo">
+        <div>
+          <h2>Más vendidos</h2>
+          <p>Unidades vendidas en el periodo.</p>
+        </div>
+      </div>
+
+      @if (resumen.masVendidos.length === 0) {
+        <p class="mensaje-lista-vacia">Todavía no hay ventas en este periodo.</p>
+      } @else {
+        <ol class="lista-ranking">
+          @for (producto of resumen.masVendidos; track producto.productoId; let posicion = $index) {
+            <li>
+              <span class="posicion">{{ posicion + 1 }}</span>
+              <div>
+                <strong>{{ producto.nombre }}</strong>
+                <small>Producto #{{ producto.productoId }}</small>
+              </div>
+              <b>{{ producto.unidadesVendidas }} uds.</b>
+            </li>
+          }
+        </ol>
+      }
+    </article>
+  </section>
+}
