@@ -1,0 +1,140 @@
+<section class="encabezado-pagina">
+  <div>
+    <p class="sobrelinea">Catálogo</p>
+    <h1>Detalle del producto</h1>
+    <p>Información general y variantes registradas.</p>
+  </div>
+  <a class="boton boton-secundario enlace-boton" routerLink="/productos">Volver al listado</a>
+</section>
+
+@if (cargando()) {
+  <app-cargando texto="Cargando producto..." />
+} @else if (noEncontrado()) {
+  <app-recurso-no-encontrado
+    titulo="Producto no encontrado"
+    mensaje="El producto que intentaste consultar no existe."
+    volverA="/productos"
+    textoVolver="Volver a productos"
+  />
+} @else if (error() && !detalle()) {
+  <app-mensaje-error [mensaje]="error()" (reintentar)="cargar()" />
+} @else if (detalle(); as datos) {
+  @if (mensaje()) {
+    <p class="alerta alerta-exito" role="status">{{ mensaje() }}</p>
+  }
+  @if (error()) {
+    <p class="alerta alerta-error" role="alert">{{ error() }}</p>
+  }
+
+  <section class="detalle-grid">
+    <article class="panel ficha-producto">
+      <img [src]="imagen(datos.producto.imagen)" [alt]="datos.producto.nombre" />
+      <div class="ficha-contenido">
+        <div class="titulo-producto">
+          <div>
+            <span class="estado" [class.inactivo]="!datos.producto.activo">
+              {{ datos.producto.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+            <h2>{{ datos.producto.nombre }}</h2>
+            <p>{{ categoria(datos.producto) }} · Producto #{{ datos.producto.id }}</p>
+          </div>
+          <strong class="precio">{{ datos.producto.precio | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+        </div>
+        <p class="descripcion">{{ datos.producto.descripcion }}</p>
+        <dl>
+          <div><dt>Ruta de imagen</dt><dd>{{ datos.producto.imagen }}</dd></div>
+          <div><dt>Variantes</dt><dd>{{ datos.variantes.length }}</dd></div>
+        </dl>
+        <div class="acciones">
+          <a class="boton boton-primario enlace-boton" routerLink="/productos/{{ datos.producto.id }}/editar">Editar producto</a>
+          <button class="boton boton-secundario" type="button" (click)="confirmarEstado.set(true)">
+            {{ datos.producto.activo ? 'Desactivar' : 'Activar' }}
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel variantes-panel">
+      <div class="panel-titulo">
+        <div>
+          <h2>Variantes</h2>
+          <p>Talla, color y existencia inicial de cada combinación.</p>
+        </div>
+        <button class="boton boton-primario" type="button" (click)="mostrarVariante.set(!mostrarVariante())">
+          {{ mostrarVariante() ? 'Cerrar' : '+ Agregar variante' }}
+        </button>
+      </div>
+
+      @if (mostrarVariante()) {
+        <form class="form-variante" [formGroup]="formularioVariante" (ngSubmit)="guardarVariante()" novalidate>
+          <label>
+            <span>Talla</span>
+            <select formControlName="talla">
+              <option [ngValue]="null">Selecciona</option>
+              @for (talla of tallas; track talla) { <option [ngValue]="talla">{{ talla }}</option> }
+            </select>
+            @if (errorVariante('talla')) { <small class="campo-error">Selecciona una talla.</small> }
+          </label>
+          <label>
+            <span>Color</span>
+            <select formControlName="color">
+              <option [ngValue]="null">Selecciona</option>
+              @for (color of colores; track color) { <option [ngValue]="color">{{ color }}</option> }
+            </select>
+            @if (errorVariante('color')) { <small class="campo-error">Selecciona un color.</small> }
+          </label>
+          <label>
+            <span>Stock inicial</span>
+            <input type="number" min="0" formControlName="stock" />
+            @if (errorVariante('stock')) { <small class="campo-error">Usa un número igual o mayor que cero.</small> }
+          </label>
+          <label>
+            <span>Stock mínimo</span>
+            <input type="number" min="0" formControlName="stockMinimo" />
+            @if (errorVariante('stockMinimo')) { <small class="campo-error">Usa un número igual o mayor que cero.</small> }
+          </label>
+          <button class="boton boton-primario" type="submit" [disabled]="guardandoVariante()">
+            {{ guardandoVariante() ? 'Guardando...' : 'Guardar variante' }}
+          </button>
+        </form>
+      }
+
+      @if (datos.variantes.length === 0) {
+        <div class="estado-vacio">
+          <h3>Este producto todavía no tiene variantes</h3>
+          <p>Agrega al menos una talla y color para manejar su inventario.</p>
+        </div>
+      } @else {
+        <div class="tabla-scroll">
+          <table>
+            <thead><tr><th>ID</th><th>Talla</th><th>Color</th><th>Stock</th><th>Mínimo</th></tr></thead>
+            <tbody>
+              @for (variante of datos.variantes; track variante.id) {
+                <tr>
+                  <td>#{{ variante.id }}</td>
+                  <td>{{ variante.talla }}</td>
+                  <td>{{ variante.color }}</td>
+                  <td [class.stock-bajo]="variante.stock <= variante.stockMinimo">{{ variante.stock }}</td>
+                  <td>{{ variante.stockMinimo }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+  </section>
+
+  <app-confirmacion
+    [abierto]="confirmarEstado()"
+    [titulo]="datos.producto.activo ? 'Desactivar producto' : 'Activar producto'"
+    [mensaje]="datos.producto.activo
+      ? 'El producto dejará de aparecer en el portal del cliente. Puedes volver a activarlo después.'
+      : 'El producto volverá a estar disponible en el catálogo cuando tenga stock.'"
+    [textoConfirmar]="datos.producto.activo ? 'Desactivar' : 'Activar'"
+    [peligro]="datos.producto.activo"
+    [procesando]="procesandoEstado()"
+    (cancelar)="confirmarEstado.set(false)"
+    (confirmar)="cambiarEstado()"
+  />
+}

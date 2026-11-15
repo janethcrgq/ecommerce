@@ -1,0 +1,155 @@
+<section class="encabezado-pagina">
+  <div>
+    <p class="sobrelinea">Catálogo</p>
+    <h1>Productos</h1>
+    <p>Consulta, filtra y administra los productos publicados en la tienda.</p>
+  </div>
+  <a class="boton boton-primario enlace-boton" routerLink="/productos/nuevo">+ Nuevo producto</a>
+</section>
+
+<section class="panel filtros" aria-label="Filtros de productos">
+  <label class="busqueda">
+    <span>Buscar por nombre</span>
+    <input
+      type="search"
+      placeholder="Ej. camiseta"
+      [value]="nombre()"
+      (input)="nombre.set($any($event.target).value)"
+      (keyup.enter)="cargarProductos()"
+    />
+  </label>
+
+  <label>
+    <span>Categoría</span>
+    <select [value]="categoriaId() ?? ''" (change)="actualizarNumero(categoriaId, $event)">
+      <option value="">Todas</option>
+      @for (categoria of categorias(); track categoria.id) {
+        <option [value]="categoria.id">{{ categoria.nombre }}</option>
+      }
+    </select>
+  </label>
+
+  <label>
+    <span>Estado</span>
+    <select [value]="estado()" (change)="estado.set($any($event.target).value)">
+      <option value="TODOS">Todos</option>
+      <option value="ACTIVOS">Activos</option>
+      <option value="INACTIVOS">Inactivos</option>
+    </select>
+  </label>
+
+  <label>
+    <span>Precio mínimo</span>
+    <input type="number" min="0" [value]="precioMin() ?? ''" (input)="actualizarNumero(precioMin, $event)" />
+  </label>
+
+  <label>
+    <span>Precio máximo</span>
+    <input type="number" min="0" [value]="precioMax() ?? ''" (input)="actualizarNumero(precioMax, $event)" />
+  </label>
+
+  <label>
+    <span>Ordenar por</span>
+    <select [value]="ordenarPor()" (change)="ordenarPor.set($any($event.target).value)">
+      <option value="nombre">Nombre</option>
+      <option value="precio">Precio</option>
+    </select>
+  </label>
+
+  <label>
+    <span>Dirección</span>
+    <select [value]="direccion()" (change)="direccion.set($any($event.target).value)">
+      <option value="asc">Ascendente</option>
+      <option value="desc">Descendente</option>
+    </select>
+  </label>
+
+  <div class="acciones-filtros">
+    <button class="boton boton-primario" type="button" (click)="cargarProductos()">Aplicar</button>
+    <button class="boton boton-secundario" type="button" (click)="limpiar()">Limpiar</button>
+  </div>
+</section>
+
+@if (mensajeOperacion()) {
+  <p class="alerta alerta-exito" role="status">{{ mensajeOperacion() }}</p>
+}
+
+@if (cargando()) {
+  <app-cargando texto="Cargando productos..." />
+} @else if (error()) {
+  <app-mensaje-error [mensaje]="error()" (reintentar)="cargarInicial()" />
+} @else {
+  <section class="panel tabla-panel">
+    <div class="panel-titulo">
+      <div>
+        <h2>Catálogo administrativo</h2>
+        <p>{{ productosVisibles().length }} producto(s) visible(s) con los filtros actuales.</p>
+      </div>
+    </div>
+
+    @if (productosVisibles().length === 0) {
+      <div class="estado-vacio">
+        <h3>No hay productos para mostrar</h3>
+        <p>Prueba otros filtros o registra un nuevo producto.</p>
+      </div>
+    } @else {
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (producto of productosVisibles(); track producto.id) {
+              <tr>
+                <td>
+                  <div class="producto-celda">
+                    <img [src]="imagen(producto.imagen)" [alt]="producto.nombre" />
+                    <div>
+                      <strong>{{ producto.nombre }}</strong>
+                      <small>#{{ producto.id }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ nombreCategoria(producto.categoriaId) }}</td>
+                <td>{{ producto.precio | currency:'MXN':'symbol-narrow':'1.2-2' }}</td>
+                <td>
+                  <span class="estado" [class.inactivo]="!producto.activo">
+                    {{ producto.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="acciones-tabla">
+                    <a routerLink="/productos/{{ producto.id }}">Ver</a>
+                    <a routerLink="/productos/{{ producto.id }}/editar">Editar</a>
+                    <button type="button" (click)="productoEstado.set(producto)">
+                      {{ producto.activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
+
+<app-confirmacion
+  [abierto]="!!productoEstado()"
+  [titulo]="productoEstado()?.activo ? 'Desactivar producto' : 'Activar producto'"
+  [mensaje]="productoEstado()?.activo
+    ? 'El producto dejará de aparecer en el portal del cliente. Puedes volver a activarlo después.'
+    : 'El producto volverá a estar disponible en el catálogo cuando tenga stock.'"
+  [textoConfirmar]="productoEstado()?.activo ? 'Desactivar' : 'Activar'"
+  [peligro]="!!productoEstado()?.activo"
+  [procesando]="procesandoEstado()"
+  (cancelar)="productoEstado.set(null)"
+  (confirmar)="cambiarEstado()"
+/>

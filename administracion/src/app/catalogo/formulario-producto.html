@@ -1,0 +1,85 @@
+<section class="encabezado-pagina">
+  <div>
+    <p class="sobrelinea">Catálogo</p>
+    <h1>{{ editando ? 'Editar producto' : 'Nuevo producto' }}</h1>
+    <p>{{ editando ? 'Modifica la información que verá el cliente.' : 'Registra la información general del producto.' }}</p>
+  </div>
+  <a class="boton boton-secundario enlace-boton" routerLink="/productos">Volver al listado</a>
+</section>
+
+@if (cargando()) {
+  <app-cargando texto="Cargando formulario..." />
+} @else if (noEncontrado()) {
+  <app-recurso-no-encontrado
+    titulo="Producto no encontrado"
+    mensaje="El producto que intentaste editar no existe."
+    volverA="/productos"
+    textoVolver="Volver a productos"
+  />
+} @else {
+  <form class="panel formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    @if (error()) {
+      <p class="alerta alerta-error" role="alert">{{ error() }}</p>
+    }
+
+    <div class="rejilla">
+      <label class="campo campo-ancho">
+        <span>Nombre</span>
+        <input formControlName="nombre" maxlength="150" />
+        @if (mostrarError('nombre')) {
+          <small class="campo-error">El nombre es obligatorio y debe tener máximo 150 caracteres.</small>
+        }
+      </label>
+
+      <label class="campo">
+        <span>Categoría</span>
+        <select formControlName="categoriaId">
+          <option [ngValue]="null">Selecciona una categoría</option>
+          @for (categoria of categorias(); track categoria.id) {
+            <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+          }
+        </select>
+        @if (mostrarError('categoriaId')) {
+          <small class="campo-error">Selecciona una categoría.</small>
+        }
+      </label>
+
+      <label class="campo">
+        <span>Precio</span>
+        <input type="number" min="0.01" step="0.01" formControlName="precio" />
+        @if (mostrarError('precio')) {
+          <small class="campo-error">El precio es obligatorio y debe ser mayor que cero.</small>
+        }
+      </label>
+
+      <label class="campo campo-ancho">
+        <span>Descripción</span>
+        <textarea rows="5" maxlength="500" formControlName="descripcion"></textarea>
+        @if (mostrarError('descripcion')) {
+          <small class="campo-error">La descripción es obligatoria y debe tener máximo 500 caracteres.</small>
+        }
+      </label>
+
+      <label class="campo campo-ancho">
+        <span>Imagen</span>
+        <input formControlName="imagen" maxlength="255" placeholder="/img/producto.jpg" />
+        <small class="ayuda">Ruta de la imagen que será mostrada en el portal del cliente.</small>
+        @if (mostrarError('imagen')) {
+          <small class="campo-error">La imagen es obligatoria.</small>
+        }
+      </label>
+
+      <label class="check campo-ancho">
+        <input type="checkbox" formControlName="activo" />
+        <span>Producto activo</span>
+      </label>
+    </div>
+
+    <div class="acciones">
+      <button class="boton boton-primario" type="submit" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar producto' }}
+      </button>
+      <a class="boton boton-secundario enlace-boton" routerLink="/productos">Cancelar</a>
+    </div>
+  </form>
+}

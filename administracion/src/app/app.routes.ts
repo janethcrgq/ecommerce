@@ -4,6 +4,11 @@ import { PaginaEntrar } from './sesion/pagina-entrar';
 import { LayoutAdmin } from './layout/layout-admin';
 import { PaginaDashboard } from './dashboard/pagina-dashboard';
 import { NoEncontrado } from './compartido/no-encontrado';
+import { PaginaProductos } from './catalogo/pagina-productos';
+import { FormularioProducto } from './catalogo/formulario-producto';
+import { PaginaDetalleProducto } from './catalogo/pagina-detalle-producto';
+import { PaginaCategorias } from './catalogo/pagina-categorias';
+import { cambiosPendientesGuard } from './compartido/cambios-pendientes.guard';
 
 export const routes: Routes = [
   {
@@ -18,6 +23,29 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: PaginaDashboard,
+      },
+      {
+        path: 'productos',
+        component: PaginaProductos,
+      },
+      {
+        path: 'productos/nuevo',
+        component: FormularioProducto,
+        canDeactivate: [cambiosPendientesGuard],
+      },
+      {
+        path: 'productos/:id/editar',
+        component: FormularioProducto,
+        canDeactivate: [cambiosPendientesGuard],
+      },
+      {
+        path: 'productos/:id',
+        component: PaginaDetalleProducto,
+      },
+      {
+        path: 'categorias',
+        component: PaginaCategorias,
+        canDeactivate: [cambiosPendientesGuard],
       },
       {
         path: '',

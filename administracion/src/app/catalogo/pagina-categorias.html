@@ -1,0 +1,102 @@
+<section class="encabezado-pagina">
+  <div>
+    <p class="sobrelinea">Catálogo</p>
+    <h1>Categorías</h1>
+    <p>Organiza los productos que aparecen en la tienda.</p>
+  </div>
+</section>
+
+@if (mensaje()) {
+  <p class="alerta alerta-exito" role="status">{{ mensaje() }}</p>
+}
+@if (errorOperacion()) {
+  <p class="alerta alerta-error regla-negocio" role="alert">
+    <strong>La operación no se pudo completar.</strong>
+    <span>{{ errorOperacion() }}</span>
+  </p>
+}
+
+@if (cargando()) {
+  <app-cargando texto="Cargando categorías..." />
+} @else if (errorCarga()) {
+  <app-mensaje-error [mensaje]="errorCarga()" (reintentar)="cargar()" />
+} @else {
+  <section class="categorias-grid">
+    <article class="panel lista-panel">
+      <div class="panel-titulo">
+        <div>
+          <h2>Categorías registradas</h2>
+          <p>{{ categorias().length }} categoría(s).</p>
+        </div>
+      </div>
+
+      @if (categorias().length === 0) {
+        <div class="estado-vacio">
+          <h3>No hay categorías</h3>
+          <p>Registra la primera para comenzar a organizar el catálogo.</p>
+        </div>
+      } @else {
+        <div class="tabla-scroll">
+          <table>
+            <thead><tr><th>Nombre</th><th>Descripción</th><th>Acciones</th></tr></thead>
+            <tbody>
+              @for (categoria of categorias(); track categoria.id) {
+                <tr>
+                  <td><strong>{{ categoria.nombre }}</strong><small>#{{ categoria.id }}</small></td>
+                  <td>{{ categoria.descripcion }}</td>
+                  <td>
+                    <div class="acciones-tabla">
+                      <button type="button" (click)="editar(categoria)">Editar</button>
+                      <button class="peligro" type="button" (click)="eliminando.set(categoria)">Eliminar</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+
+    <article class="panel formulario-panel">
+      <div class="panel-titulo">
+        <div>
+          <h2>{{ editando() ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+          <p>{{ editando() ? 'Actualiza los datos de la categoría seleccionada.' : 'Registra una categoría para clasificar productos.' }}</p>
+        </div>
+      </div>
+
+      <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+        <label>
+          <span>Nombre</span>
+          <input formControlName="nombre" maxlength="100" />
+          @if (errorCampo('nombre')) { <small class="campo-error">El nombre es obligatorio.</small> }
+        </label>
+        <label>
+          <span>Descripción</span>
+          <textarea rows="5" formControlName="descripcion" maxlength="255"></textarea>
+          @if (errorCampo('descripcion')) { <small class="campo-error">La descripción es obligatoria.</small> }
+        </label>
+        <div class="acciones">
+          <button class="boton boton-primario" type="submit" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : (editando() ? 'Guardar cambios' : 'Crear categoría') }}
+          </button>
+          @if (editando()) {
+            <button class="boton boton-secundario" type="button" (click)="cancelarEdicion()">Cancelar</button>
+          }
+        </div>
+      </form>
+    </article>
+  </section>
+}
+
+<app-confirmacion
+  [abierto]="!!eliminando()"
+  titulo="Eliminar categoría"
+  [mensaje]="'Se eliminará la categoría “' + (eliminando()?.nombre ?? '') + '”. Esta acción no se puede deshacer.'"
+  textoConfirmar="Eliminar"
+  [peligro]="true"
+  [procesando]="procesandoEliminar()"
+  (cancelar)="eliminando.set(null)"
+  (confirmar)="eliminar()"
+/>
