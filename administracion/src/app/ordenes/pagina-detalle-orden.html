@@ -16,6 +16,8 @@
     volverA="/ordenes"
     textoVolver="Volver a órdenes"
   />
+} @else if (error() && !detalle()) {
+  <app-mensaje-error [mensaje]="error()" (reintentar)="cargar()" />
 } @else if (detalle(); as dato) {
   @if (error()) {
     <p class="alerta alerta-error" role="alert">{{ error() }}</p>

@@ -51,6 +51,9 @@ export class PaginaCategorias implements ConCambiosPendientes {
   }
 
   editar(categoria: Categoria): void {
+    if (this.formulario.dirty && !window.confirm('Tienes cambios sin guardar. ¿Quieres descartarlos?')) {
+      return;
+    }
     this.editando.set(categoria);
     this.errorOperacion.set('');
     this.mensaje.set('');
@@ -60,6 +63,9 @@ export class PaginaCategorias implements ConCambiosPendientes {
   }
 
   cancelarEdicion(): void {
+    if (this.formulario.dirty && !window.confirm('Tienes cambios sin guardar. ¿Quieres descartarlos?')) {
+      return;
+    }
     this.editando.set(null);
     this.formulario.reset({ nombre: '', descripcion: '' });
     this.formulario.markAsPristine();
@@ -88,6 +94,8 @@ export class PaginaCategorias implements ConCambiosPendientes {
       } else {
         await firstValueFrom(this.catalogo.crearCategoria(datos));
       }
+      // El guardado ya fue exitoso: no hay cambios pendientes que descartar.
+      this.formulario.markAsPristine();
       this.cancelarEdicion();
       this.mensaje.set(mensajeExito);
       await this.cargarSinEstado();

@@ -80,7 +80,6 @@ export class PaginaProductos {
       this.productos.set(productos);
     } catch (error) {
       this.error.set(mensajeErrorApi(error, 'No fue posible cargar los productos.'));
-      throw error;
     } finally {
       if (mostrarCarga) this.cargando.set(false);
     }

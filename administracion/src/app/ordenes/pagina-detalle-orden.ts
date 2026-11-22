@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { resolverUrlImagen } from '../api/config';
 import { mensajeErrorApi } from '../api/error-api';
 import { Cargando } from '../compartido/cargando';
+import { MensajeError } from '../compartido/mensaje-error';
 import { Confirmacion } from '../compartido/confirmacion';
 import { RecursoNoEncontrado } from '../compartido/recurso-no-encontrado';
 import {
@@ -17,7 +18,7 @@ import {
 
 @Component({
   selector: 'app-pagina-detalle-orden',
-  imports: [ReactiveFormsModule, RouterLink, Cargando, Confirmacion, RecursoNoEncontrado],
+  imports: [ReactiveFormsModule, RouterLink, Cargando, MensajeError, Confirmacion, RecursoNoEncontrado],
   templateUrl: './pagina-detalle-orden.html',
   styleUrl: './pagina-detalle-orden.css',
 })
