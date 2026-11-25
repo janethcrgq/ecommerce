@@ -9,7 +9,7 @@ Portal web (React + TypeScript + Vite) para que los clientes vean el catálogo, 
 
 ## Cómo correrlo
 
-1. Prende el servicio desde la raíz del repositorio (`npm run dev`). Debe quedar en `http://localhost:3000`.
+1. Prende el servicio desde la raíz del repositorio (`npm run dev`). Debe quedar en `http://localhost:3001`.
 2. En otra terminal:
 
 ```bash
@@ -26,7 +26,7 @@ npm run dev
 La dirección del servicio está en el archivo `.env` del portal:
 
 ```
-VITE_API_URL="http://localhost:3000"
+VITE_API_URL="http://localhost:3001"
 ```
 
 Si el servicio corre en otro puerto o en otra computadora, cambia ese valor y reinicia `npm run dev`. El servicio debe permitir el origen del portal en su variable `FRONTEND_ORIGIN` (por defecto acepta `http://localhost:5173`).
