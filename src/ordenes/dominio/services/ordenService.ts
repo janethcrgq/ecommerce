@@ -55,6 +55,7 @@ import {
 
 import { validarAdministrador } from '../../../usuarios/dominio/reglas/validarAdministrador';
 
+import { Direccion } from '../../../usuarios/dominio/entidades/direccion';
 import { IDireccionRepository } from '../../../usuarios/dominio/repositories/iDireccionRepository';
 import { IUsuarioRepository } from '../../../usuarios/dominio/repositories/iUsuarioRepository';
 
@@ -70,9 +71,27 @@ export interface DetalleOrdenConProducto extends DetalleOrden {
 }
 
 
-// una orden completa: sus productos, su pago y su envio (si ya tiene).
+// los datos del comprador que se muestran en una orden (nunca el hash).
+export interface CompradorOrden {
+    id: number;
+    nombre: string;
+    correo: string;
+    telefono: string;
+}
+
+
+// una orden del listado del administrador, con el nombre de quien compro.
+export interface OrdenConComprador extends Orden {
+    comprador: CompradorOrden | null;
+}
+
+
+// una orden completa: sus productos, su pago y su envio (si ya tiene),
+// ademas de quien compro y a donde se envia.
 export interface OrdenDetalle {
     orden: Orden;
+    comprador: CompradorOrden | null;
+    direccion: Direccion | null;
     detalles: DetalleOrdenConProducto[];
     pago: Pago | null;
     envio: Envio | null;
@@ -336,8 +355,20 @@ export class OrdenService {
                 orden.id,
             );
 
+        const comprador =
+            await this.obtenerComprador(
+                orden.usuarioId,
+            );
+
+        const direccion =
+            await this.direccionRepo.obtenerPorId(
+                orden.direccionId,
+            );
+
         return {
             orden,
+            comprador,
+            direccion,
             detalles,
             pago,
             envio,
@@ -362,9 +393,26 @@ export class OrdenService {
         }
 
         if (usuario.rol === RolUsuario.ADMINISTRADOR) {
-            return this.ordenRepo.listar(
-                filtros,
-            );
+
+            const ordenes =
+                await this.ordenRepo.listar(
+                    filtros,
+                );
+
+            // al administrador le agregamos el nombre de cada comprador.
+            const resultado: OrdenConComprador[] = [];
+
+            for (const orden of ordenes) {
+                resultado.push({
+                    ...orden,
+                    comprador:
+                        await this.obtenerComprador(
+                            orden.usuarioId,
+                        ),
+                });
+            }
+
+            return resultado;
         }
 
         return this.ordenRepo.listar({
@@ -676,6 +724,29 @@ export class OrdenService {
 
     // busca la orden y revisa que sea del usuario que la pide.
     // el admin puede ver cualquier orden.
+    // nombre, correo y telefono del comprador, sin el hash de la contrasenia.
+    private async obtenerComprador(
+        usuarioId: number,
+    ): Promise<CompradorOrden | null> {
+
+        const comprador =
+            await this.usuarioRepo.obtenerPorId(
+                usuarioId,
+            );
+
+        if (!comprador) {
+            return null;
+        }
+
+        return {
+            id: comprador.id,
+            nombre: comprador.nombre,
+            correo: comprador.correo,
+            telefono: comprador.telefono,
+        };
+    }
+
+
     private async obtenerOrdenConAcceso(
         usuarioId: number,
         ordenId: number,

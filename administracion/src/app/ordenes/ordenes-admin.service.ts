@@ -7,6 +7,24 @@ export type EstadoOrden = 'PENDIENTE' | 'PROCESANDO' | 'ENVIADO' | 'ENTREGADO';
 export type EstadoPago = 'PENDIENTE' | 'PAGADO' | 'FALLIDO';
 export type MetodoPago = 'TARJETA' | 'EFECTIVO' | 'TRANSFERENCIA';
 
+export interface Comprador {
+  id: number;
+  nombre: string;
+  correo: string;
+  telefono: string;
+}
+
+export interface DireccionEnvio {
+  id: number;
+  usuarioId: number;
+  codigoPostal: string;
+  numeroCasa: string;
+  calle: string;
+  colonia: string;
+  ciudad: string;
+  estado: string;
+}
+
 export interface Orden {
   id: number;
   usuarioId: number;
@@ -14,6 +32,7 @@ export interface Orden {
   fecha: string;
   total: number;
   estado: EstadoOrden;
+  comprador?: Comprador | null;
 }
 
 export interface Pago {
@@ -49,6 +68,8 @@ export interface DetalleOrdenProducto {
 
 export interface OrdenDetalle {
   orden: Orden;
+  comprador: Comprador | null;
+  direccion: DireccionEnvio | null;
   detalles: DetalleOrdenProducto[];
   pago: Pago | null;
   envio: Envio | null;

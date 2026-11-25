@@ -16,6 +16,7 @@ export class PaginaEntrar {
   private readonly sesion = inject(SesionService);
   private readonly router = inject(Router);
 
+  readonly aviso = this.sesion.aviso;
   readonly enviando = signal(false);
   readonly error = signal('');
 

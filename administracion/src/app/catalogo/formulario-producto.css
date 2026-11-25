@@ -26,3 +26,7 @@ textarea { resize: vertical; }
 .selector-archivo { cursor: pointer; }
 .selector-archivo input { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
 @media (max-width: 560px) { .subida-imagen { align-items: stretch; flex-direction: column; } .previsualizacion-imagen { width: 100%; height: 220px; } }
+
+.variante-inicial { margin: 1rem 0 0; padding: 1rem; border: 1px solid var(--borde); border-radius: 10px; }
+.variante-inicial legend { padding: 0 .4rem; font-weight: 700; }
+.variante-inicial .ayuda { margin: 0 0 .8rem; color: var(--texto-suave); font-size: .85rem; }

@@ -27,3 +27,4 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .campo-error { color: #b42318; font-size: .8rem; font-weight: 600; }
 .alerta { padding: .75rem .85rem; border-radius: 8px; font-size: .88rem; }
 .alerta-error { color: #912018; background: #fff0ee; border: 1px solid #fac5bf; }
+.alerta-info { color: #1d3a8a; background: #eef4ff; border: 1px solid #c3d6fb; }

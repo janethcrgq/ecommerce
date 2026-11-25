@@ -33,7 +33,7 @@
     </div>
     <div>
       <small>Cliente</small>
-      <strong>#{{ dato.orden.usuarioId }}</strong>
+      <strong>{{ dato.comprador?.nombre ?? '#' + dato.orden.usuarioId }}</strong>
     </div>
     <div>
       <small>Fecha</small>
@@ -74,6 +74,31 @@
     </section>
 
     <div class="columna-operacion">
+      <section class="panel">
+        <div class="panel-encabezado">
+          <div>
+            <h2>Comprador y entrega</h2>
+            <p>Datos de contacto y dirección de envío.</p>
+          </div>
+        </div>
+
+        @if (dato.comprador) {
+          <dl class="datos">
+            <div><dt>Nombre</dt><dd>{{ dato.comprador.nombre }}</dd></div>
+            <div><dt>Correo</dt><dd>{{ dato.comprador.correo }}</dd></div>
+            <div><dt>Teléfono</dt><dd>{{ dato.comprador.telefono }}</dd></div>
+            @if (dato.direccion; as dir) {
+              <div>
+                <dt>Dirección</dt>
+                <dd>{{ dir.calle }} {{ dir.numeroCasa }}, {{ dir.colonia }}, {{ dir.ciudad }}, {{ dir.estado }}, C.P. {{ dir.codigoPostal }}</dd>
+              </div>
+            }
+          </dl>
+        } @else {
+          <p class="texto-suave">No hay datos del comprador para esta orden.</p>
+        }
+      </section>
+
       <section class="panel">
         <div class="panel-encabezado">
           <div>

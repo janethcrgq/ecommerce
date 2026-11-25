@@ -20,6 +20,7 @@ export class PaginaOrdenes {
   readonly ordenes = signal<Orden[]>([]);
   readonly cargando = signal(true);
   readonly error = signal('');
+  readonly errorFechas = signal('');
 
   readonly filtros = this.fb.group({
     estado: this.fb.control<EstadoOrden | ''>('', { nonNullable: true }),
@@ -33,10 +34,18 @@ export class PaginaOrdenes {
   }
 
   async cargar(): Promise<void> {
+    const valor = this.filtros.getRawValue();
+
+    // el servicio no avisa si las fechas están al revés, así que se valida aquí
+    if (valor.fechaDesde && valor.fechaHasta && valor.fechaDesde > valor.fechaHasta) {
+      this.errorFechas.set('La fecha "Desde" no puede ser posterior a "Hasta".');
+      return;
+    }
+
+    this.errorFechas.set('');
     this.cargando.set(true);
     this.error.set('');
 
-    const valor = this.filtros.getRawValue();
     try {
       const datos = await firstValueFrom(this.ordenesService.listar({
         estado: valor.estado || undefined,

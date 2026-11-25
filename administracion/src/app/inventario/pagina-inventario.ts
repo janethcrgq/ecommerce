@@ -24,6 +24,7 @@ export class PaginaInventario {
   readonly productos = signal<ProductoAdmin[]>([]);
   readonly ajustes = signal<AjusteInventario[]>([]);
   readonly soloStockBajo = signal(false);
+  readonly busqueda = signal('');
   readonly cargando = signal(true);
   readonly cargandoAjustes = signal(true);
   readonly errorCarga = signal('');
@@ -37,6 +38,18 @@ export class PaginaInventario {
     const mapa = new Map<number, ProductoAdmin>();
     for (const producto of this.productos()) mapa.set(producto.id, producto);
     return mapa;
+  });
+
+  // la tabla se filtra por el nombre del producto, la talla o el color
+  readonly variantesVisibles = computed(() => {
+    const texto = this.busqueda().trim().toLowerCase();
+    if (!texto) return this.variantes();
+
+    return this.variantes().filter((variante) =>
+      `${this.nombreProducto(variante.productoId)} ${variante.talla} ${variante.color}`
+        .toLowerCase()
+        .includes(texto),
+    );
   });
 
   readonly formulario = this.fb.group({

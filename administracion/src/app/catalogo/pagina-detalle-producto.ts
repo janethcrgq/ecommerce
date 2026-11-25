@@ -67,6 +67,8 @@ export class PaginaDetalleProducto {
 
       const guardado = this.route.snapshot.queryParamMap.get('guardado');
       if (guardado === 'creado') this.mensaje.set('Producto creado correctamente. Ahora puedes agregar sus variantes.');
+      if (guardado === 'creado-con-variante') this.mensaje.set('Producto creado correctamente con su existencia inicial.');
+      if (guardado === 'creado-sin-variante') this.error.set('El producto se creó, pero no se pudo registrar su existencia inicial. Agrégala desde "Agregar variante".');
       if (guardado === 'editado') this.mensaje.set('Producto actualizado correctamente.');
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 404) {

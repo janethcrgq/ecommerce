@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SesionService } from '../sesion/sesion.service';
 
@@ -11,6 +11,15 @@ import { SesionService } from '../sesion/sesion.service';
 export class LayoutAdmin {
   readonly sesion = inject(SesionService);
   private readonly router = inject(Router);
+
+  constructor() {
+    // si la sesión se cierra en otra pestaña, esta sale de la pantalla protegida de inmediato
+    effect(() => {
+      if (!this.sesion.sesion()) {
+        void this.router.navigateByUrl('/entrar');
+      }
+    });
+  }
 
   async salir(): Promise<void> {
     this.sesion.cerrar();

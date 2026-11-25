@@ -39,6 +39,10 @@
   </div>
 </form>
 
+@if (errorFechas()) {
+  <p class="alerta alerta-error" role="alert">{{ errorFechas() }}</p>
+}
+
 @if (error()) {
   <app-mensaje-error [mensaje]="error()" (reintentar)="cargar()" />
 } @else if (cargando()) {
@@ -75,7 +79,10 @@
               <tr>
                 <td><strong>#{{ orden.id }}</strong></td>
                 <td>{{ formatoFecha(orden.fecha) }}</td>
-                <td>Cliente #{{ orden.usuarioId }}</td>
+                <td>
+                  <strong>{{ orden.comprador?.nombre ?? 'Cliente #' + orden.usuarioId }}</strong>
+                  @if (orden.comprador) { <small>{{ orden.comprador.correo }}</small> }
+                </td>
                 <td>{{ formatoMoneda(orden.total) }}</td>
                 <td><span class="estado" [attr.data-estado]="orden.estado">{{ orden.estado }}</span></td>
                 <td><a [routerLink]="['/ordenes', orden.id]">Ver detalle</a></td>

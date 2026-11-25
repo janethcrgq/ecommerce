@@ -23,6 +23,7 @@ export class PaginaProductos {
   readonly cargando = signal(true);
   readonly error = signal('');
   readonly mensajeOperacion = signal('');
+  readonly errorOperacion = signal('');
   readonly nombre = signal('');
   readonly categoriaId = signal<number | undefined>(undefined);
   readonly precioMin = signal<number | undefined>(undefined);
@@ -85,6 +86,12 @@ export class PaginaProductos {
     }
   }
 
+  // el botón Aplicar y la tecla Enter en cualquier filtro
+  aplicar(evento: Event): void {
+    evento.preventDefault();
+    void this.cargarProductos();
+  }
+
   limpiar(): void {
     this.nombre.set('');
     this.categoriaId.set(undefined);
@@ -102,6 +109,7 @@ export class PaginaProductos {
 
     this.procesandoEstado.set(true);
     this.mensajeOperacion.set('');
+    this.errorOperacion.set('');
     try {
       await firstValueFrom(
         this.catalogo.actualizarProducto(producto.id, { activo: !producto.activo }),
@@ -112,7 +120,9 @@ export class PaginaProductos {
         producto.activo ? 'Producto desactivado correctamente.' : 'Producto activado correctamente.',
       );
     } catch (error) {
-      this.error.set(mensajeErrorApi(error));
+      // el listado se queda como estaba y solo se avisa del motivo
+      this.productoEstado.set(null);
+      this.errorOperacion.set(mensajeErrorApi(error));
     } finally {
       this.procesandoEstado.set(false);
     }

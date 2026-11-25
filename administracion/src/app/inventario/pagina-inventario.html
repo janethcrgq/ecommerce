@@ -4,6 +4,10 @@
     <h1>Existencias y ajustes</h1>
     <p>Consulta el stock actual y registra entradas, mermas o correcciones.</p>
   </div>
+  <label class="filtro-busqueda">
+    <span>Buscar producto, talla o color</span>
+    <input type="search" placeholder="Ej. sudadera" [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+  </label>
   <label class="filtro-check">
     <input type="checkbox" [checked]="soloStockBajo()" (change)="cambiarFiltro($event)" />
     <span>Mostrar solo stock bajo</span>
@@ -26,16 +30,16 @@
     <div class="panel-encabezado">
       <div>
         <h2>Stock por variante</h2>
-        <p>{{ variantes().length }} variante(s) visible(s).</p>
+        <p>{{ variantesVisibles().length }} variante(s) visible(s).</p>
       </div>
     </div>
 
     @if (cargando()) {
       <app-cargando texto="Cargando inventario..." />
-    } @else if (!errorCarga() && variantes().length === 0) {
+    } @else if (!errorCarga() && variantesVisibles().length === 0) {
       <div class="estado-vacio">
         <strong>No hay variantes para mostrar.</strong>
-        <span>{{ soloStockBajo() ? 'No hay existencias en nivel de alerta.' : 'Agrega variantes desde el detalle de un producto.' }}</span>
+        <span>{{ busqueda() ? 'Prueba con otra búsqueda.' : (soloStockBajo() ? 'No hay existencias en nivel de alerta.' : 'Agrega variantes desde el detalle de un producto.') }}</span>
       </div>
     } @else if (!errorCarga()) {
       <div class="tabla-scroll">
@@ -50,7 +54,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (variante of variantes(); track variante.id) {
+            @for (variante of variantesVisibles(); track variante.id) {
               <tr>
                 <td>
                   <strong>{{ nombreProducto(variante.productoId) }}</strong>

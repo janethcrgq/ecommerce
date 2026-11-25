@@ -7,7 +7,7 @@
   <a class="boton boton-primario enlace-boton" routerLink="/productos/nuevo">+ Nuevo producto</a>
 </section>
 
-<section class="panel filtros" aria-label="Filtros de productos">
+<form class="panel filtros" aria-label="Filtros de productos" (submit)="aplicar($event)">
   <label class="busqueda">
     <span>Buscar por nombre</span>
     <input
@@ -15,7 +15,6 @@
       placeholder="Ej. camiseta"
       [value]="nombre()"
       (input)="nombre.set($any($event.target).value)"
-      (keyup.enter)="cargarProductos()"
     />
   </label>
 
@@ -65,13 +64,16 @@
   </label>
 
   <div class="acciones-filtros">
-    <button class="boton boton-primario" type="button" (click)="cargarProductos()">Aplicar</button>
+    <button class="boton boton-primario" type="submit">Aplicar</button>
     <button class="boton boton-secundario" type="button" (click)="limpiar()">Limpiar</button>
   </div>
-</section>
+</form>
 
 @if (mensajeOperacion()) {
   <p class="alerta alerta-exito" role="status">{{ mensajeOperacion() }}</p>
+}
+@if (errorOperacion()) {
+  <p class="alerta alerta-error" role="alert">{{ errorOperacion() }}</p>
 }
 
 @if (cargando()) {

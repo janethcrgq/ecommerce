@@ -39,6 +39,8 @@ export class SesionService {
   private readonly estado = signal<SesionGuardada | null>(this.leerGuardada());
 
   readonly sesion = this.estado.asReadonly();
+  // mensaje que se muestra en el inicio de sesión cuando la sesión terminó sola
+  readonly aviso = signal('');
   readonly usuario = computed(() => this.estado()?.usuario ?? null);
   readonly token = computed(() => this.estado()?.token ?? null);
   readonly esAdministrador = computed(
@@ -48,6 +50,20 @@ export class SesionService {
   constructor(handler: HttpBackend) {
     // El login usa un cliente sin interceptor para evitar dependencias circulares.
     this.http = new HttpClient(handler);
+
+    // la sesión vive en localStorage, que comparten todas las pestañas.
+    // si en otra pestaña se inicia o se cierra sesión, esta se entera y se actualiza
+    window.addEventListener('storage', (evento) => {
+      if (evento.key === null || evento.key === CLAVE_SESION) {
+        this.estado.set(this.leerGuardada());
+      }
+    });
+  }
+
+  // cuando el servicio dice que la credencial ya no sirve
+  expirar(): void {
+    this.cerrar();
+    this.aviso.set('Tu sesión terminó. Inicia sesión de nuevo.');
   }
 
   async iniciar(correo: string, contrasenia: string): Promise<void> {
@@ -69,6 +85,7 @@ export class SesionService {
     };
 
     localStorage.setItem(CLAVE_SESION, JSON.stringify(nuevaSesion));
+    this.aviso.set('');
     this.estado.set(nuevaSesion);
   }
 

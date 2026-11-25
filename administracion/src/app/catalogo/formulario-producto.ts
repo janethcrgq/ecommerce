@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { CatalogoAdminService, Categoria, DatosProducto } from './catalogo-admin.service';
+import { CatalogoAdminService, Categoria, Color, DatosProducto, Talla } from './catalogo-admin.service';
 import { mensajeErrorApi } from '../api/error-api';
 import { resolverUrlImagen } from '../api/config';
 import { Cargando } from '../compartido/cargando';
@@ -37,6 +37,17 @@ export class FormularioProducto implements ConCambiosPendientes, OnDestroy {
   readonly archivoSeleccionado = signal<File | null>(null);
 
   private urlTemporal = '';
+
+  readonly tallas: Talla[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  readonly colores: Color[] = ['NEGRO', 'BLANCO', 'GRIS', 'AZUL', 'ROJO', 'VERDE', 'BEIGE'];
+
+  // primera variante con su stock inicial. es opcional, pero si se llena una parte hay que llenarla completa
+  readonly variante = this.fb.group({
+    talla: this.fb.control<Talla | null>(null),
+    color: this.fb.control<Color | null>(null),
+    stock: this.fb.control<number | null>(null, [Validators.min(0), Validators.pattern(/^\d+$/)]),
+    stockMinimo: this.fb.control<number | null>(null, [Validators.min(0), Validators.pattern(/^\d+$/)]),
+  });
 
   readonly formulario = this.fb.group({
     categoriaId: this.fb.control<number | null>(null, [Validators.required]),
@@ -137,7 +148,7 @@ export class FormularioProducto implements ConCambiosPendientes, OnDestroy {
       this.errorImagen.set('Selecciona una imagen para el producto.');
     }
 
-    if (this.formulario.invalid || necesitaImagen) return;
+    if (this.formulario.invalid || necesitaImagen || (!this.editando && this.varianteInvalida)) return;
 
     this.guardando.set(true);
 
@@ -170,10 +181,28 @@ export class FormularioProducto implements ConCambiosPendientes, OnDestroy {
         ? await firstValueFrom(this.catalogo.crearProducto(datos))
         : await firstValueFrom(this.catalogo.actualizarProducto(id, datos));
 
+      // al crear, si llenaron la primera variante se registra enseguida con su stock inicial
+      let resultado = id === null ? 'creado' : 'editado';
+      if (id === null && this.quiereVariante) {
+        const v = this.variante.getRawValue();
+        try {
+          await firstValueFrom(this.catalogo.crearVariante(producto.id, {
+            talla: v.talla!,
+            color: v.color!,
+            stock: v.stock!,
+            stockMinimo: v.stockMinimo ?? 0,
+          }));
+          resultado = 'creado-con-variante';
+        } catch {
+          // el producto ya existe, así que se avisa en su detalle para que agreguen la variante ahí
+          resultado = 'creado-sin-variante';
+        }
+      }
+
       this.guardado.set(true);
       this.formulario.markAsPristine();
       await this.router.navigate(['/productos', producto.id], {
-        queryParams: { guardado: id === null ? 'creado' : 'editado' },
+        queryParams: { guardado: resultado },
       });
     } catch (error) {
       this.error.set(mensajeErrorApi(error));
@@ -182,13 +211,33 @@ export class FormularioProducto implements ConCambiosPendientes, OnDestroy {
     }
   }
 
+  // se considera que quieren crear la variante si llenaron cualquiera de sus campos
+  get quiereVariante(): boolean {
+    const v = this.variante.getRawValue();
+    return v.talla !== null || v.color !== null || v.stock !== null || v.stockMinimo !== null;
+  }
+
+  errorVariante(campo: 'talla' | 'color' | 'stock'): boolean {
+    if (!this.enviado() || !this.quiereVariante) return false;
+    const v = this.variante.getRawValue();
+    if (campo === 'talla') return v.talla === null;
+    if (campo === 'color') return v.color === null;
+    return v.stock === null || this.variante.controls.stock.invalid;
+  }
+
+  get varianteInvalida(): boolean {
+    if (!this.quiereVariante) return false;
+    const v = this.variante.getRawValue();
+    return v.talla === null || v.color === null || v.stock === null || this.variante.invalid;
+  }
+
   mostrarError(campo: keyof typeof this.formulario.controls): boolean {
     const control = this.formulario.controls[campo];
     return control.invalid && (control.touched || this.enviado());
   }
 
   tieneCambiosPendientes(): boolean {
-    return (this.formulario.dirty || this.archivoSeleccionado() !== null) && !this.guardado();
+    return (this.formulario.dirty || this.variante.dirty || this.archivoSeleccionado() !== null) && !this.guardado();
   }
 
   @HostListener('window:beforeunload', ['$event'])

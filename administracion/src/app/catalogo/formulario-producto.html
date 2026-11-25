@@ -105,6 +105,40 @@
       </label>
     </div>
 
+    @if (!editando) {
+      <fieldset class="variante-inicial" [formGroup]="variante">
+        <legend>Existencias iniciales (opcional)</legend>
+        <p class="ayuda">Sin una variante con stock, el producto no aparece en el portal. Puedes agregarla ahora o después desde su detalle.</p>
+        <div class="rejilla">
+          <label class="campo">
+            <span>Talla</span>
+            <select formControlName="talla">
+              <option [ngValue]="null">Selecciona</option>
+              @for (talla of tallas; track talla) { <option [ngValue]="talla">{{ talla }}</option> }
+            </select>
+            @if (errorVariante('talla')) { <small class="campo-error">Selecciona una talla.</small> }
+          </label>
+          <label class="campo">
+            <span>Color</span>
+            <select formControlName="color">
+              <option [ngValue]="null">Selecciona</option>
+              @for (color of colores; track color) { <option [ngValue]="color">{{ color }}</option> }
+            </select>
+            @if (errorVariante('color')) { <small class="campo-error">Selecciona un color.</small> }
+          </label>
+          <label class="campo">
+            <span>Stock inicial</span>
+            <input type="number" min="0" step="1" formControlName="stock" />
+            @if (errorVariante('stock')) { <small class="campo-error">Escribe un número entero igual o mayor que cero.</small> }
+          </label>
+          <label class="campo">
+            <span>Stock mínimo (alerta)</span>
+            <input type="number" min="0" step="1" formControlName="stockMinimo" />
+          </label>
+        </div>
+      </fieldset>
+    }
+
     <div class="acciones">
       <button class="boton boton-primario" type="submit" [disabled]="guardando()">
         {{ guardando() ? 'Guardando...' : 'Guardar producto' }}

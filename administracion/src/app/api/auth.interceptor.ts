@@ -23,7 +23,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   return next(peticion).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && token) {
-        sesion.cerrar();
+        sesion.expirar();
         void router.navigateByUrl('/entrar');
       }
 
