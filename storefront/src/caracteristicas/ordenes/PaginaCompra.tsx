@@ -260,7 +260,7 @@ function CompraConfirmada({ compra }: { compra: ResultadoCompra }) {
   return (
     <div className="estado">
       <p className="estado__codigo">✓</p>
-      <h1 className="estado__titulo">¡Tu orden #{compra.orden.id} está confirmada!</h1>
+      <h1 className="estado__titulo">¡Recibimos tu orden #{compra.orden.id}!</h1>
       <p className="estado__texto">
         Total: <strong>{formatoMoneda(compra.orden.total)}</strong>
         <br />

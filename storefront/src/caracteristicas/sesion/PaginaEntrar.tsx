@@ -16,7 +16,7 @@ interface ErroresEntrar {
 export default function PaginaEntrar() {
   useTitulo('Iniciar sesión');
 
-  const { usuario, iniciarSesion } = useSesion();
+  const { usuario, sesionExpirada, iniciarSesion } = useSesion();
   const { mostrarAviso } = useAvisos();
   const navegar = useNavigate();
   const ubicacion = useLocation();
@@ -63,9 +63,10 @@ export default function PaginaEntrar() {
       <div className="formulario">
         <h1 className="pagina__titulo">Iniciar sesión</h1>
 
-        {/* si venía de una ruta protegida se explica por qué está aquí */}
-        {ubicacion.state?.desde && (
-          <p className="formulario__nota">Inicia sesión para continuar con tu compra.</p>
+        {/* si venía de una ruta protegida se explica por qué está aquí, con un texto general.
+            si la sesión terminó sola ya salió el aviso de arriba, así que no se repite */}
+        {ubicacion.state?.desde && !sesionExpirada && (
+          <p className="formulario__nota">Inicia sesión para continuar.</p>
         )}
 
         <form onSubmit={alEnviar} noValidate>
