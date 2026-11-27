@@ -8,11 +8,12 @@ import { mensajeErrorApi } from '../api/error-api';
 import { resolverUrlImagen } from '../api/config';
 import { Cargando } from '../compartido/cargando';
 import { RecursoNoEncontrado } from '../compartido/recurso-no-encontrado';
+import { Confirmacion } from '../compartido/confirmacion';
 import { ConCambiosPendientes } from '../compartido/cambios-pendientes.guard';
 
 @Component({
   selector: 'app-formulario-producto',
-  imports: [ReactiveFormsModule, RouterLink, Cargando, RecursoNoEncontrado],
+  imports: [ReactiveFormsModule, RouterLink, Cargando, RecursoNoEncontrado, Confirmacion],
   templateUrl: './formulario-producto.html',
   styleUrl: './formulario-producto.css',
 })
@@ -31,6 +32,8 @@ export class FormularioProducto implements ConCambiosPendientes, OnDestroy {
   readonly enviado = signal(false);
   readonly productoId = signal<number | null>(null);
   readonly guardado = signal(false);
+  readonly estadoInicialActivo = signal(true);
+  readonly confirmarDesactivacion = signal(false);
   readonly imagenActual = signal('');
   readonly previsualizacion = signal('');
   readonly nombreArchivo = signal('');
@@ -86,6 +89,7 @@ export class FormularioProducto implements ConCambiosPendientes, OnDestroy {
           precio: detalle.producto.precio,
           activo: detalle.producto.activo,
         });
+        this.estadoInicialActivo.set(detalle.producto.activo);
         this.imagenActual.set(detalle.producto.imagen);
         this.previsualizacion.set(resolverUrlImagen(detalle.producto.imagen));
       }
@@ -137,7 +141,7 @@ export class FormularioProducto implements ConCambiosPendientes, OnDestroy {
     this.previsualizacion.set(actual ? resolverUrlImagen(actual) : '');
   }
 
-  async guardar(): Promise<void> {
+  guardar(): void {
     this.enviado.set(true);
     this.error.set('');
     this.errorImagen.set('');
@@ -150,6 +154,21 @@ export class FormularioProducto implements ConCambiosPendientes, OnDestroy {
 
     if (this.formulario.invalid || necesitaImagen || (!this.editando && this.varianteInvalida)) return;
 
+    // al desactivar un producto activo, solicitar confirmación antes de completar la operación
+    if (this.editando && this.estadoInicialActivo() && !this.formulario.getRawValue().activo) {
+      this.confirmarDesactivacion.set(true);
+      return;
+    }
+
+    void this.ejecutarGuardado();
+  }
+
+  confirmarYGuardar(): void {
+    this.confirmarDesactivacion.set(false);
+    void this.ejecutarGuardado();
+  }
+
+  private async ejecutarGuardado(): Promise<void> {
     this.guardando.set(true);
 
     try {

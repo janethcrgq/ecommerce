@@ -146,4 +146,15 @@
       <a class="boton boton-secundario enlace-boton" routerLink="/productos">Cancelar</a>
     </div>
   </form>
+
+  <app-confirmacion
+    [abierto]="confirmarDesactivacion()"
+    titulo="Desactivar producto"
+    mensaje="El producto dejará de aparecer en el portal del cliente. Puedes volver a activarlo después."
+    textoConfirmar="Desactivar y guardar"
+    [peligro]="true"
+    [procesando]="guardando()"
+    (confirmar)="confirmarYGuardar()"
+    (cancelar)="confirmarDesactivacion.set(false)"
+  />
 }
